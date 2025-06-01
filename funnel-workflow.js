@@ -237,33 +237,31 @@ const nodes = [
           {
             id: uuidv4(),
             name: 'evo_url',
-            value: expr(`$('Get Bot').item.json.property_server_url || null`),
+            value: "={{ $node['Get Bot'].json.property_server_url || null }}",
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'evo_apikey',
-            value: expr(`$('Get Bot').item.json.property_api_key || null`),
+            value: "={{ $node['Get Bot'].json.property_api_key || null }}",
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'bot_id',
-            value: expr(`$('Get Bot').item.json.property_bot_id || null`),
+            value: "={{ $node['Get Bot'].json.property_bot_id || null }}",
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'db_id',
-            value: expr(
-              `$('Get Project').item.json.property_crm_db.split('/') [3].split('?')[0]`
-            ),
+            value: "={{ $node['Get Project'].json.property_crm_db.split('/')[3].split('?')[0] }}",
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'client_whatsapp',
-            value: expr(`$('Get Project').item.json.property_notificaciones`),
+            value: "={{ $node['Get Project'].json.property_notificaciones }}",
             type: 'string',
           },
         ],
@@ -1176,90 +1174,90 @@ const nodes = [
 ];
 
 const connections = {
-  "Webhook": {
-    "main": [[{ "node": nodesData.ID_Project.name, "type": 'main', "index": 0 }]],
+  Webhook: {
+    main: [[{ node: nodesData.ID_Project.name, type: 'main', index: 0 }]],
   },
-  "ID Project": {
-    "main": [[{ "node": nodesData.Get_Project.name, "type": 'main', "index": 0 }]],
+  'ID Project': {
+    main: [[{ node: nodesData.Get_Project.name, type: 'main', index: 0 }]],
   },
-  "Get Project": {
-    "main": [[{ "node": nodesData.Get_Bot.name, "type": 'main', "index": 0 }]],
+  'Get Project': {
+    main: [[{ node: nodesData.Get_Bot.name, type: 'main', index: 0 }]],
   },
-  "Get Bot": {
-    "main": [[{ "node": nodesData.ENV.name, "type": 'main', "index": 0 }]],
+  'Get Bot': {
+    main: [[{ node: nodesData.ENV.name, type: 'main', index: 0 }]],
   },
-  "ENV": {
-    "main": [[{ "node": nodesData.Session_Data.name, "type": 'main', "index": 0 }]],
+  ENV: {
+    main: [[{ node: nodesData.Session_Data.name, type: 'main', index: 0 }]],
   },
-  "Session Data": { 
-    "main": [[{ "node": nodesData.Event_Type.name, "type": 'main', "index": 0 }]],
+  'Session Data': {
+    main: [[{ node: nodesData.Event_Type.name, type: 'main', index: 0 }]],
   },
-  "Event Type": {
-    "main": [
-      [{ "node": nodesData.Create_Lead.name, "type": 'main', "index": 0 }],
-      [{ "node": nodesData.Get_Lead_Cancel.name, "type": 'main', "index": 0 }],
-      [{ "node": nodesData.Get_Lead_Reschedule.name, "type": 'main', "index": 0 }],
+  'Event Type': {
+    main: [
+      [{ node: nodesData.Create_Lead.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Get_Lead_Cancel.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Get_Lead_Reschedule.name, type: 'main', index: 0 }],
     ],
   },
-  "Create Lead": {
-    "main": [[{ "node": nodesData.Form.name, "type": 'main', "index": 0 }]],
+  'Create Lead': {
+    main: [[{ node: nodesData.Form.name, type: 'main', index: 0 }]],
   },
-  "Get Lead Cancel": {
-    "main": [[{ "node": nodesData.Cancel.name, "type": 'main', "index": 0 }]],
+  'Get Lead Cancel': {
+    main: [[{ node: nodesData.Cancel.name, type: 'main', index: 0 }]],
   },
-  "Get Lead Reschedule": {
-    "main": [[{ "node": nodesData.Reschedule.name, "type": 'main', "index": 0 }]],
+  'Get Lead Reschedule': {
+    main: [[{ node: nodesData.Reschedule.name, type: 'main', index: 0 }]],
   },
-  "Form": {
-    "main": [[{ "node": nodesData.If_Bot_Create.name, "type": 'main', "index": 0 }]],
+  Form: {
+    main: [[{ node: nodesData.If_Bot_Create.name, type: 'main', index: 0 }]],
   },
-  "If Bot Create": {
-    "main": [
-      [{ "node": nodesData.Formatted_Date.name, "type": 'main', "index": 0 }],
-      [{ "node": nodesData.Get_Not_Bot.name, "type": 'main', "index": 0 }],
+  'If Bot Create': {
+    main: [
+      [{ node: nodesData.Formatted_Date.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Get_Not_Bot.name, type: 'main', index: 0 }],
     ],
   },
-  "Formatted Date": {
-    "main": [[{ "node": nodesData.Data_MSG_1.name, "type": 'main', "index": 0 }]],
+  'Formatted Date': {
+    main: [[{ node: nodesData.Data_MSG_1.name, type: 'main', index: 0 }]],
   },
-  "Data MSG-1": {
-    "main": [[{ "node": nodesData.MSG_1.name, "type": 'main', "index": 0 }]],
+  'Data MSG-1': {
+    main: [[{ node: nodesData.MSG_1.name, type: 'main', index: 0 }]],
   },
-  "MSG-1": {
-    "main": [[{ "node": nodesData.Get_Not_Bot.name, "type": 'main', "index": 0 }]],
+  'MSG-1': {
+    main: [[{ node: nodesData.Get_Not_Bot.name, type: 'main', index: 0 }]],
   },
-  "Get Not Bot": {
-    "main": [[{ "node": nodesData.Data_MSG_S.name, "type": 'main', "index": 0 }]],
+  'Get Not Bot': {
+    main: [[{ node: nodesData.Data_MSG_S.name, type: 'main', index: 0 }]],
   },
-  "Data MSG-S": {
-    "main": [[{ "node": nodesData.MSG_S.name, "type": 'main', "index": 0 }]],
+  'Data MSG-S': {
+    main: [[{ node: nodesData.MSG_S.name, type: 'main', index: 0 }]],
   },
-  "Reschedule": {
-    "main": [[{ "node": nodesData.If_Bot_Reschedule.name, "type": 'main', "index": 0 }]],
+  Reschedule: {
+    main: [[{ node: nodesData.If_Bot_Reschedule.name, type: 'main', index: 0 }]],
   },
-  "If Bot Reschedule": {
-    "main": [[{ "node": nodesData.Hours_Remaining.name, "type": 'main', "index": 0 }]],
+  'If Bot Reschedule': {
+    main: [[{ node: nodesData.Hours_Remaining.name, type: 'main', index: 0 }]],
   },
-  "Hours Remaining": {
-    "main": [[{ "node": nodesData.If_Today.name, "type": 'main', "index": 0 }]],
+  'Hours Remaining': {
+    main: [[{ node: nodesData.If_Today.name, type: 'main', index: 0 }]],
   },
-  "If Today": {
-    "main": [
-      [{ "node": nodesData.Formatted_Date_Today.name, "type": 'main', "index": 0 }],
-      [{ "node": nodesData.Formatted_Date_Not_Today.name, "type": 'main', "index": 0 }],
+  'If Today': {
+    main: [
+      [{ node: nodesData.Formatted_Date_Today.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Formatted_Date_Not_Today.name, type: 'main', index: 0 }],
     ],
   },
-  "Formatted Date Today": {
-    "main": [[{ "node": nodesData.Data_MSG_Today.name, "type": 'main', "index": 0 }]],
+  'Formatted Date Today': {
+    main: [[{ node: nodesData.Data_MSG_Today.name, type: 'main', index: 0 }]],
   },
-  "Data MSG-Today": {
-    "main": [[{ "node": nodesData.MSG_Today.name, "type": 'main', "index": 0 }]],
+  'Data MSG-Today': {
+    main: [[{ node: nodesData.MSG_Today.name, type: 'main', index: 0 }]],
   },
-  "Formatted Date Not Today": {
-    "main": [[{ "node": nodesData.Data_MSG_Not_Today.name, "type": 'main', "index": 0 }]],
+  'Formatted Date Not Today': {
+    main: [[{ node: nodesData.Data_MSG_Not_Today.name, type: 'main', index: 0 }]],
   },
-  "Data MSG-Not-Today": {
-    "main": [[{ "node": nodesData.MSG_Not_Today.name, "type": 'main', "index": 0 }]],
+  'Data MSG-Not-Today': {
+    main: [[{ node: nodesData.MSG_Not_Today.name, type: 'main', index: 0 }]],
   },
 };
 
