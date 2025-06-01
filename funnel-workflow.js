@@ -40,8 +40,8 @@ const nodesData = {
   Hours_Remaining: { id: uuidv4(), name: 'Hours Remaining', position: [1800, 580] },
   If_Today: { id: uuidv4(), name: 'If Today', position: [1980, 580] },
   // ──────────── Today ──────────────
-  Data_MSG_Today: { id: uuidv4(), name: 'Data MSG-Today', position: [2160, 400] },
-  MSG_Today: { id: uuidv4(), name: 'MSG-Today', position: [2340, 400] },
+  Data_MSG_Today: { id: uuidv4(), name: 'Data MSG-Today', position: [2160, 580] },
+  MSG_Today: { id: uuidv4(), name: 'MSG-Today', position: [2340, 580] },
   // ──────────── NOT Today ──────────────
   Data_MSG_Not_Today: { id: uuidv4(), name: 'Data MSG-Not-Today', position: [2160, 760] },
   MSG_Not_Today: { id: uuidv4(), name: 'MSG-Not-Today', position: [2340, 760] },
