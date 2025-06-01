@@ -12,82 +12,51 @@ const workflowDataInput = $('Workflow Data').first().json;
 const projectNameSlug = workflowDataInput.workflow_name.trim().toLowerCase().replace(/\s+/g, '-');
 const projectPageID = $('Data').first().json.projectPageID || '';
 
-const ids = {
-  Webhook: uuidv4(),
-  'ID Project': uuidv4(),
-  'Get Project': uuidv4(),
-  'Get Bot': uuidv4(),
-  ENV: uuidv4(),
-  'Session Data': uuidv4(),
-  'Event Type': uuidv4(),
-  'Create Lead': uuidv4(),
-  'Get Lead': uuidv4(),
-  'Get Lead.': uuidv4(),
-  Cancel: uuidv4(),
-  Update: uuidv4(),
-  Form: uuidv4(),
-  'If': uuidv4(),
-  'Formated Date': uuidv4(),
-  'Data MSG-1': uuidv4(),
-  'MSG-1': uuidv4(),
-  'Get Not Bot': uuidv4(),
-  'Data MSG-S': uuidv4(),
-  'MSG-S': uuidv4()
+const nodesData = {
+  Webhook: { id: uuidv4(), name: 'Webhook', position: [0, 400] },
+  ID_Project: { id: uuidv4(), name: 'ID Project', position: [180, 400] },
+  Get_Project: { id: uuidv4(), name: 'Get Project', position: [360, 400] },
+  Get_Bot: { id: uuidv4(), name: 'Get Bot', position: [540, 400] },
+  ENV: { id: uuidv4(), name: 'ENV', position: [720, 400] },
+  Session_Data: { id: uuidv4(), name: 'Session Data', position: [900, 400] },
+  Event_Type: { id: uuidv4(), name: 'Event Type', position: [1080, 400] },
+  // ──────────── CREATE ──────────────
+  Create_Lead: { id: uuidv4(), name: 'Create Lead', position: [1260, 220] },
+  Form: { id: uuidv4(), name: 'Form', position: [1620, 220] },
+  If_Bot_Create: { id: uuidv4(), name: 'If Bot Create', position: [1800, 220] },
+  Formated_Date: { id: uuidv4(), name: 'Formated Date', position: [1980, 220] },
+  Data_MSG_1: { id: uuidv4(), name: 'Data MSG-1', position: [2160, 220] },  
+  MSG_1: { id: uuidv4(), name: 'MSG-1', position: [2340, 220] },
+  Get_Not_Bot: { id: uuidv4(), name: 'Get Not Bot', position: [1980, 400] },
+  Data_MSG_S: { id: uuidv4(), name: 'Data MSG-S', position: [2160, 400] },
+  MSG_S: { id: uuidv4(), name: 'MSG-S', position: [2340, 400] },
+  // ──────────── CANCEL ──────────────
+  Get_Lead_Cancel: { id: uuidv4(), name: 'Get Lead Cancel', position: [1440, 400] },
+  Cancel: { id: uuidv4(), name: 'Cancel', position: [1440, 400] },
+  // ─────────── RESCHEDULE ───────────────
+  Get_Lead_Reschedule: { id: uuidv4(), name: 'Get Lead Reschedule', position: [1620, 400] },
+  Reschedule: { id: uuidv4(), name: 'Reschedule', position: [1440, 580] },
+  If_Bot_Reschedule: { id: uuidv4(), name: 'If Bot Reschedule', position: [1440, 760] },
+  Hours_Remaining: { id: uuidv4(), name: 'Hours Remaining', position: [1620, 760] },
+  If_Today: { id: uuidv4(), name: 'If Today', position: [1800, 760] },
+  // ──────────── TODAY ──────────────
+  Formated_Date_A: { id: uuidv4(), name: 'Formated Date A', position: [1980, 580] },
+  Data_MSG_A: { id: uuidv4(), name: 'Data MSG-A', position: [2160, 580] },
+  MSG_A: { id: uuidv4(), name: 'MSG-A', position: [2340, 580] },
+  // ──────────── NOT TODAY ──────────────
+  Formated_Date_B: { id: uuidv4(), name: 'Formated Date B', position: [1980, 1000] },
+  Data_MSG_B: { id: uuidv4(), name: 'Data MSG-B', position: [2160, 1000] },
+  MSG_B: { id: uuidv4(), name: 'MSG-B', position: [2340, 1000] },
 };
 
-const nodes = [
-  {
-    parameters: { httpMethod: 'POST', path: projectNameSlug, options: {} },
-    type: 'n8n-nodes-base.webhook', typeVersion: 2,
-    position: [0, 400], id: ids.Webhook, name: 'Webhook', webhookId: uuidv4()
-  },
-  {
-    parameters: {
-      assignments: {
-        assignments: [{ id: uuidv4(), name: 'project_id', value: projectPageID, type: 'string' }]
-      }, options: {}
-    },
-    type: 'n8n-nodes-base.set', typeVersion: 3.4,
-    position: [180, 400], notesInFlow: true, id: ids['ID Project'], name: 'ID Project', notesInFlow: true
-  },
-  {
-    parameters: {
-      resource: 'databasePage', operation: 'get',
-      pageId: { __rl: true, value: expr('$json.project_id'), mode: 'id' }
-    },
-    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: [360, 400], notesInFlow: true, id: ids['Get Project'], name: 'Get Project',
-    credentials: { notionApi: { id: '0vm51DaWqWGwtW9q' } }
-  },
-  {
-    parameters: {
-      resource: 'databasePage', operation: 'get',
-      pageId: { __rl: true, value: expr('$json.property_bot[0] || ""'), mode: 'id' }
-    },
-    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: [540, 400], notesInFlow: true, id: ids['Get Bot'], name: 'Get Bot',
-    alwaysOutputData: true,
-    onError: 'continue',
-    credentials: { notionApi: { id: '0vm51DaWqWGwtW9q' } }
-  },
-  {
-    parameters: {
-      assignments: {
-        assignments: [
-          { id: uuidv4(), name: 'evo_url', value: expr(`$node["Get Bot"].item.json.property_server_url || null`), type: 'string' },
-          { id: uuidv4(), name: 'evo_apikey', value: expr(`$node["Get Bot"].item.json.property_api_key || null`), type: 'string' },
-          { id: uuidv4(), name: 'bot_id', value: expr(`$node["Get Bot"].item.json.property_bot_id || null`), type: 'string' },
-          { id: uuidv4(), name: 'db_id', value: expr(`$node["Get Project"].item.json.property_crm_db.split('/') [3].split('?')[0]`), type: 'string' },
-          { id: uuidv4(), name: 'client_whatsapp', value: expr(`$node["Get Project"].item.json.property_notificaciones`), type: 'string' }
-        ]
-      }, options: {}
-    },
-    type: 'n8n-nodes-base.set', typeVersion: 3.4,
-    position: [720, 400], id: ids.ENV, name: 'ENV'
-  },
-  {
-    parameters: {
-      jsCode: `// ──────────────────────────
+const credentials = {
+  notion: {
+    pbs: '0vm51DaWqWGwtW9q'
+  }
+}
+
+const jsCode = {
+  Session_Data: `// ──────────────────────────
 // 1. Obtener y desestructurar datos del Webhook
 // ──────────────────────────
 const data = $('Webhook').first().json;
@@ -187,10 +156,74 @@ return [
       questions_and_answers,
     },
   },
-];`
+];`,
+  Formated_Date: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];`,
+  Hours_Remaining: `// Fuente: nodo "Session Data"\nconst sessionItems = $items('Session Data');\n\nreturn sessionItems.map(item => {\n\t// Hora de la sesión\n\tconst sessionTimeRaw = item.json.scheduled_event.start_time;\n\tconst sessionTime    = new Date(sessionTimeRaw);\n\n\t// Hora actual (n8n insertará su timestamp en $now)\n\tconst nowDate        = new Date($now);\n\n\t// Diferencia en horas\n\tconst differenceMs   = sessionTime - nowDate;\n\tconst hoursRemaining = Math.floor(differenceMs / (1000 * 60 * 60));\n\n\t// Devolvemos todo el JSON original + los campos calculados\n\treturn {\n\t\tjson: {\n\t\t\t...item.json,             // conserva todas las claves/valores originales\n\t\t\tnow: $now,\n\t\t\tstart_session: sessionTimeRaw,\n\t\t\thours_remaining: hoursRemaining\n\t\t}\n\t};\n});\n`,
+  If: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
+  Formated_Date_A: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
+  Formated_Date_B: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
+}
+
+const texts = {
+  MSG_1: `=¡Hola {{ $node['Session Data'].json.user_info.name }}! 👋\n\nEncantado de saludarte, te escribo por la llamada que tienes agendada conmigo.\n\nPronto te contactaré para confirmar algunos detalles importantes. Es fundamental que podamos hablar para dejar todo listo para tu sesión.\n\nPor favor, mantente atent@ a tu teléfono 📞\n\n⚠️ Si no logramos contactar en las próximas 24 horas, cancelaremos la llamada.`,
+}
+
+const nodes = [
+  {
+    parameters: { httpMethod: 'POST', path: projectNameSlug, options: {} },
+    type: 'n8n-nodes-base.webhook', typeVersion: 2,
+    position: nodesData.Webhook.position, id: nodesData.Webhook.id, name: nodesData.Webhook.name, webhookId: uuidv4()
+  },
+  {
+    parameters: {
+      assignments: {
+        assignments: [{ id: uuidv4(), name: 'project_id', value: projectPageID, type: 'string' }]
+      }, options: {}
     },
-    id: ids['Session Data'], name: 'Session Data',
-    type: 'n8n-nodes-base.code', typeVersion: 2, position: [900, 400], notesInFlow: true
+    type: 'n8n-nodes-base.set', typeVersion: 3.4,
+    position: nodesData.ID_Project.position, notesInFlow: true, id: nodesData.ID_Project.id, name: nodesData.ID_Project.name
+  },
+  {
+    parameters: {
+      resource: 'databasePage', operation: 'get',
+      pageId: { __rl: true, value: expr('$json.project_id'), mode: 'id' }
+    },
+    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
+    position: nodesData.Get_Project.position, notesInFlow: true, id: nodesData.Get_Project.id, name: nodesData.Get_Project.name,
+    credentials: { notionApi: { id: credentials.notion.pbs } }
+  },
+  {
+    parameters: {
+      resource: 'databasePage', operation: 'get',
+      pageId: { __rl: true, value: expr('$json.property_bot[0] || ""'), mode: 'id' }
+    },
+    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
+    position: nodesData.Get_Bot.position, notesInFlow: true, id: nodesData.Get_Bot.id, name: nodesData.Get_Bot.name,
+    alwaysOutputData: true,
+    onError: 'continue',
+    credentials: { notionApi: { id: credentials.notion.pbs } }
+  },
+  {
+    parameters: {
+      assignments: {
+        assignments: [
+          { id: uuidv4(), name: 'evo_url', value: expr(`$node["Get Bot"].item.json.property_server_url || null`), type: 'string' },
+          { id: uuidv4(), name: 'evo_apikey', value: expr(`$node["Get Bot"].item.json.property_api_key || null`), type: 'string' },
+          { id: uuidv4(), name: 'bot_id', value: expr(`$node["Get Bot"].item.json.property_bot_id || null`), type: 'string' },
+          { id: uuidv4(), name: 'db_id', value: expr(`$node["Get Project"].item.json.property_crm_db.split('/') [3].split('?')[0]`), type: 'string' },
+          { id: uuidv4(), name: 'client_whatsapp', value: expr(`$node["Get Project"].item.json.property_notificaciones`), type: 'string' }
+        ]
+      }, options: {}
+    },
+    type: 'n8n-nodes-base.set', typeVersion: 3.4,
+    position: nodesData.ENV.position, id: nodesData.ENV.id, name: nodesData.ENV.name
+  },
+  {
+    parameters: {
+      jsCode: jsCode.Session_Data
+    },
+    id: nodesData.Session_Data.id, name: nodesData.Session_Data.name,
+    type: 'n8n-nodes-base.code', typeVersion: 2, position: nodesData.Session_Data.position, notesInFlow: true
   },
   {
     parameters: {
@@ -218,7 +251,7 @@ return [
       }, options: {}
     },
     type: 'n8n-nodes-base.switch', typeVersion: 3,
-    position: [1080, 400], id: ids['Event Type'], name: 'Event Type', notesInFlow: true
+    position: nodesData.Event_Type.position, id: nodesData.Event_Type.id, name: nodesData.Event_Type.name, notesInFlow: true
   },
   {
     parameters: {
@@ -238,10 +271,10 @@ return [
         ]
       }, options: {}
     },
-    id: ids['Create Lead'], name: 'Create Lead',
+    id: nodesData.Create_Lead.id, name: nodesData.Create_Lead.name,
     type: 'n8n-nodes-base.notion', typeVersion: 2.2,
     position: [1260, 220], notesInFlow: true,
-    credentials: { notionApi: { id: '0vm51DaWqWGwtW9q' } }
+    credentials: { notionApi: { id: credentials.notion.pbs } }
   },
   {
     parameters: {
@@ -254,10 +287,10 @@ return [
         ]
       }, options: {}
     },
-    id: ids['Get Lead'], name: 'Get Lead',
+    id: nodesData.Get_Lead_Cancel.id, name: nodesData.Get_Lead_Cancel.name,
     type: 'n8n-nodes-base.notion', typeVersion: 2.2,
     position: [1260, 400], alwaysOutputData: true, notesInFlow: true,
-    credentials: { notionApi: { id: '0vm51DaWqWGwtW9q' } }
+    credentials: { notionApi: { id: credentials.notion.pbs } }
   },
   {
     parameters: {
@@ -270,27 +303,27 @@ return [
         ]
       }, options: {}
     },
-    id: ids['Get Lead.'], name: 'Get Lead.',
+    id: nodesData.Get_Lead_Reschedule.id, name: nodesData.Get_Lead_Reschedule.name,
     type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: [1260, 580], alwaysOutputData: true, notesInFlow: true,
-    credentials: { notionApi: { id: '0vm51DaWqWGwtW9q' } }
+    position: nodesData.Get_Lead_Reschedule.position, alwaysOutputData: true, notesInFlow: true,
+    credentials: { notionApi: { id: credentials.notion.pbs } }
   },
   {
     parameters: {
       resource: 'databasePage', operation: 'update',
-      pageId: { __rl: true, value: expr('$node["Get Lead"].json.id'), mode: 'id' },
+      pageId: { __rl: true, value: expr('$node["Get Lead Cancel"].json.id'), mode: 'id' },
       propertiesUi: { propertyValues: [{ key: '=Estado|status', statusValue: '=Cancelado' }] },
       options: {}
     },
-    id: ids.Cancel, name: 'Cancel',
+    id: nodesData.Cancel.id, name: nodesData.Cancel.name,
     type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: [1440, 400], notesInFlow: true,
-    credentials: { notionApi: { id: '0vm51DaWqWGwtW9q' } }
+    position: nodesData.Cancel.position, notesInFlow: true,
+    credentials: { notionApi: { id: credentials.notion.pbs } }
   },
   {
     parameters: {
       resource: 'databasePage', operation: 'update',
-      pageId: { __rl: true, value: expr('$node["Get Lead."].json.id'), mode: 'id' },
+      pageId: { __rl: true, value: expr('$node["Get Lead Reschedule"].json.id'), mode: 'id' },
       propertiesUi: {
         propertyValues: [
           { key: '=Fecha Llamada|date', date: expr('$node["Session Data"].json.scheduled_event.start_time'), timezone: expr('$node["Session Data"].json.scheduled_event.timezone') },
@@ -299,10 +332,10 @@ return [
         ]
       }, options: {}
     },
-    id: ids.Update, name: 'Update',
+    id: nodesData.Reschedule.id, name: nodesData.Reschedule.name,
     type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: [1440, 580], notesInFlow: true,
-    credentials: { notionApi: { id: '0vm51DaWqWGwtW9q' } }
+    position: nodesData.Reschedule.position, notesInFlow: true,
+    credentials: { notionApi: { id: credentials.notion.pbs } }
   },
   {
     parameters: {
@@ -445,10 +478,10 @@ return [
         ]
       }
     },
-    id: ids.Form, name: 'Form',
+    id: nodesData.Form.id, name: nodesData.Form.name,
     type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: [1620, 220], notesInFlow: true,
-    credentials: { notionApi: { id: '0vm51DaWqWGwtW9q' } }
+    position: nodesData.Form.position, notesInFlow: true,
+    credentials: { notionApi: { id: credentials.notion.pbs } }
   },
   {
     parameters: {
@@ -475,16 +508,16 @@ return [
       options: {}
     },
     type: 'n8n-nodes-base.if', typeVersion: 2.2,
-    position: [1800, 220], id: ids['If'], name: 'If'
+    position: nodesData.If_Bot_Create.position, id: nodesData.If_Bot_Create.id, name: nodesData.If_Bot_Create.name
   },
   {
     parameters: {
-      jsCode: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];`
+      jsCode: jsCode.Formated_Date
     },
     type: 'n8n-nodes-base.code',
     typeVersion: 2,
-    position: [1980, 220],
-    id: ids['Formated Date'],
+    position: nodesData.Formated_Date.position,
+    id: nodesData.Formated_Date.id,
     name: 'Formated Date'
   },
   {
@@ -494,10 +527,10 @@ return [
           { id: uuidv4(), name: 'workflowName', value: expr('$workflow.name'), type: 'string' },
           { id: uuidv4(), name: 'apiKey', value: expr('$node["ENV"].json.evo_apikey'), type: 'string' },
           { id: uuidv4(), name: 'botURL', value: '=https://{{ $node[\'ENV\'].json.evo_url }}/message/sendText/{{ $node[\'ENV\'].json.bot_id }}', type: 'string' },
-          { id: uuidv4(), name: 'messageType', value: 'MSG-1', type: 'string' },
+          { id: uuidv4(), name: 'messageType', value: 'MSG-1_A', type: 'string' },
           { id: uuidv4(), name: 'sessionDate', value: expr('$node["Session Data"].item.json.scheduled_event.start_time'), type: 'string' },
           { id: uuidv4(), name: 'number', value: expr('$node["Session Data"].item.json.user_info.telephone'), type: 'string' },
-          { id: uuidv4(), name: 'text', value: `=¡Hola {{ $node['Session Data'].json.user_info.name }}! 👋\n\nEncantado de saludarte, te escribo por la llamada que tienes agendada conmigo.\n\nPronto te contactaré para confirmar algunos detalles importantes. Es fundamental que podamos hablar para dejar todo listo para tu sesión.\n\nPor favor, mantente atent@ a tu teléfono 📞\n\n⚠️ Si no logramos contactar en las próximas 24 horas, cancelaremos la llamada.`, type: 'string' },
+          { id: uuidv4(), name: 'text', value: texts.MSG_1, type: 'string' },
           { id: uuidv4(), name: 'pageID', value: expr('$node["Create Lead"].item.json.id'), type: 'string' }
         ]
       },
@@ -505,9 +538,9 @@ return [
     },
     type: 'n8n-nodes-base.set',
     typeVersion: 3.4,
-    position: [2160, 220],
-    id: ids['Data MSG-1'],
-    name: 'Data MSG-1',
+    position: nodesData.Data_MSG_1.position,
+    id: nodesData.Data_MSG_1.id,
+    name: nodesData.Data_MSG_1.name,
     notesInFlow: true
   },
   {
@@ -534,9 +567,9 @@ return [
     },
     type: 'n8n-nodes-base.executeWorkflow',
     typeVersion: 1.2,
-    position: [2340, 220],
-    id: ids['MSG-1'],
-    name: 'MSG-1',
+    position: nodesData.MSG_1.position,
+    id: nodesData.MSG_1.id,
+    name: nodesData.MSG_1.name,
     notesInFlow: true
   },
   {
@@ -551,9 +584,9 @@ return [
     },
     type: 'n8n-nodes-base.notion',
     typeVersion: 2.2,
-    position: [1980, 400],
-    id: ids['Get Not Bot'],
-    name: 'Get Not Bot',
+    position: nodesData.Get_Not_Bot.position,
+    id: nodesData.Get_Not_Bot.id,
+    name: nodesData.Get_Not_Bot.name,
     notesInFlow: true,
     credentials: { notionApi: { id: '0vm51DaWqWGwtW9q' } }
   },
@@ -575,9 +608,9 @@ return [
     },
     type: 'n8n-nodes-base.set',
     typeVersion: 3.4,
-    position: [2160, 400],
-    id: ids['Data MSG-S'],
-    name: 'Data MSG-S',
+    position: nodesData.Data_MSG_S.position,
+    id: nodesData.Data_MSG_S.id,
+    name: nodesData.Data_MSG_S.name,
     notesInFlow: true,
     executeOnce: true
   },
@@ -605,18 +638,18 @@ return [
     },
     type: 'n8n-nodes-base.executeWorkflow',
     typeVersion: 1.2,
-    position: [2340, 400],
-    id: ids['MSG-S'],
-    name: 'MSG-S',
+    position: nodesData.MSG_S.position,
+    id: nodesData.MSG_S.id,
+    name: nodesData.MSG_S.name,
     notesInFlow: true
   },
   {
-    parameters: { jsCode: `// Fuente: nodo "Session Data"\nconst sessionItems = $items('Session Data');\n\nreturn sessionItems.map(item => {\n\t// Hora de la sesión\n\tconst sessionTimeRaw = item.json.scheduled_event.start_time;\n\tconst sessionTime    = new Date(sessionTimeRaw);\n\n\t// Hora actual (n8n insertará su timestamp en $now)\n\tconst nowDate        = new Date($now);\n\n\t// Diferencia en horas\n\tconst differenceMs   = sessionTime - nowDate;\n\tconst hoursRemaining = Math.floor(differenceMs / (1000 * 60 * 60));\n\n\t// Devolvemos todo el JSON original + los campos calculados\n\treturn {\n\t\tjson: {\n\t\t\t...item.json,             // conserva todas las claves/valores originales\n\t\t\tnow: $now,\n\t\t\tstart_session: sessionTimeRaw,\n\t\t\thours_remaining: hoursRemaining\n\t\t}\n\t};\n});\n` },
+    parameters: { jsCode: jsCode.Hours_Remaining },
     type: 'n8n-nodes-base.code',
     typeVersion: 2,
-    position: [1620, 760],
-    id: '39bf231e-140e-4be7-a4d6-d2ced4e80427',
-    name: 'Hours Remaining'
+    position: nodesData.Hours_Remaining.position,
+    id: nodesData.Hours_Remaining.id,
+    name: nodesData.Hours_Remaining.name
   },
   {
     parameters: {
@@ -641,25 +674,25 @@ return [
     },
     type: 'n8n-nodes-base.if',
     typeVersion: 2.2,
-    position: [1800, 760],
-    id: 'e6e0f9e2-acb4-4856-aa2c-3974789ab5e1',
-    name: 'If1'
+    position: nodesData.If_Today.position,
+    id: nodesData.If_Today.id,
+    name: nodesData.If_Today.name
   },
   {
-    parameters: { jsCode: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n` },
+    parameters: { jsCode: jsCode.Formated_Date_A },
     type: 'n8n-nodes-base.code',
     typeVersion: 2,
-    position: [1980, 580],
-    id: '514ac874-8bc6-4494-a56b-aaa08d30e347',
-    name: 'Formated Date4'
+    position: nodesData.Formated_Date_A.position,
+    id: nodesData.Formated_Date_A.id,
+    name: nodesData.Formated_Date_A.name
   },
   {
-    parameters: { jsCode: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n` },
+    parameters: { jsCode: jsCode.Formated_Date_B },
     type: 'n8n-nodes-base.code',
     typeVersion: 2,
-    position: [1980, 1000],
-    id: 'a3191fc7-38cb-4a90-9c04-e93f1f56c6c3',
-    name: 'Formated Date5'
+    position: nodesData.Formated_Date_B.position,
+    id: nodesData.Formated_Date_B.id,
+    name: nodesData.Formated_Date_B.name
   },
   {
     parameters: {
@@ -679,9 +712,9 @@ return [
     },
     type: 'n8n-nodes-base.set',
     typeVersion: 3.4,
-    position: [2160, 580],
-    id: 'a929502e-9ede-40b1-aa40-5f5eaa7287c2',
-    name: 'Data MSG-5',
+    position: nodesData.Data_MSG_A.position,
+    id: nodesData.Data_MSG_A.id,
+    name: nodesData.Data_MSG_A.name,
     notesInFlow: true
   },
   {
@@ -715,7 +748,7 @@ return [
     typeVersion: 1.2,
     position: [2340, 580],
     id: '576680a1-df0a-424f-b3de-4a6070fd7ab0',
-    name: 'MSG-5',
+    name: 'MSG_B',
     notesInFlow: true
   },
   {
@@ -725,7 +758,7 @@ return [
           { id: '5a487ac3-0459-4104-a13d-0904fb24f48a', name: 'workflowName', value: '={{ $workflow.name }}', type: 'string' },
           { id: '2fc18e1d-1c54-462f-8504-cb6e61826ea5', name: 'apiKey', value: '={{ $node[\'ENV\'].json.evo_apikey }}', type: 'string' },
           { id: 'a32060c7-4e53-4f30-95be-ad2de2e13209', name: 'botURL', value: '=https://{{ $node[\'ENV\'].json.evo_url }}/message/sendText/{{ $node[\'ENV\'].json.bot_id }}', type: 'string' },
-          { id: '6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f', name: 'messageType', value: 'MSG-1', type: 'string' },
+          { id: '6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f', name: 'messageType', value: 'MSG-1_A', type: 'string' },
           { id: 'caa640c7-6d1a-4d64-865c-84c78c1df786', name: 'sessionDate', value: '={{ $(\'Session Data\').item.json.scheduled_event.start_time }}', type: 'string' },
           { id: '1736e866-b0f4-4634-814b-a6f3d87fb59b', name: 'number', value: '={{ $(\'Session Data\').item.json.user_info.telephone }}', type: 'string' },
           { id: 'a8535472-a454-44a7-bdbd-c64800d47e61', name: 'text', value: '=Llamada reagendada: \n\nNos vemos {{ $json.fechaFormateada }}.\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos.', type: 'string' },
@@ -737,8 +770,8 @@ return [
     type: 'n8n-nodes-base.set',
     typeVersion: 3.4,
     position: [2160, 1000],
-    id: '6480f602-e7c7-41e1-8ae7-40330323445d',
-    name: 'Data MSG-4',
+    id: nodesData.Data_MSG_A.id,
+    name: nodesData.Data_MSG_A.name,
     notesInFlow: true
   },
   {
@@ -770,9 +803,9 @@ return [
     },
     type: 'n8n-nodes-base.executeWorkflow',
     typeVersion: 1.2,
-    position: [2340, 1000],
-    id: 'e1d7f217-9f61-4e2e-bddf-cc3f08f4ca05',
-    name: 'MSG-4',
+    position: nodesData.MSG_B.position,
+    id: nodesData.MSG_B.id,
+    name: nodesData.MSG_B.name,
     notesInFlow: true
   },
   {
@@ -798,54 +831,142 @@ return [
     },
     type: 'n8n-nodes-base.if',
     typeVersion: 2.2,
-    position: [1440, 760],
-    id: '5ffb7523-b0f2-4a9d-92d1-6870e5b3dade',
-    name: 'If2'
+    position: nodesData.If_Bot_Reschedule.position,
+    id: nodesData.If_Bot_Reschedule.id,
+    name: nodesData.If_Bot_Reschedule.name
   }
 ];
 
 const connections = {
-  Webhook: { main: [[{ node: 'ID Project', type: 'main', index: 0 }]] },
-  'ID Project': { main: [[{ node: 'Get Project', type: 'main', index: 0 }]] },
-  'Get Project': { main: [[{ node: 'Get Bot', type: 'main', index: 0 }]] },
-  'Get Bot': { main: [[{ node: 'ENV', type: 'main', index: 0 }]] },
-  ENV: { main: [[{ node: 'Session Data', type: 'main', index: 0 }]] },
-  'Session Data': { main: [[{ node: 'Event Type', type: 'main', index: 0 }]] },
-  'Event Type': {
+  Webhook: {
     main: [
-      [{ node: 'Create Lead', type: 'main', index: 0 }],
-      [{ node: 'Get Lead', type: 'main', index: 0 }],
-      [{ node: 'Get Lead.', type: 'main', index: 0 }]
+      [{ node: nodesData.ID_Project.name, type: 'main', index: 0 }]
     ]
   },
-  'Create Lead': { main: [[{ node: 'Form', type: 'main', index: 0 }]] },
-  'Get Lead': { main: [[{ node: 'Cancel', type: 'main', index: 0 }]] },
-  'Get Lead.': { main: [[{ node: 'Update', type: 'main', index: 0 }]] },
-  'Form': { main: [[{ node: 'If', type: 'main', index: 0 }]] },
-  'If': {
+  ID_Project: {
     main: [
-      [{ node: 'Formated Date', type: 'main', index: 0 }],
-      [{ node: 'Get Not Bot', type: 'main', index: 0 }]
+      [{ node: nodesData.Get_Project.name, type: 'main', index: 0 }]
     ]
   },
-  'Formated Date': { main: [[{ node: 'Data MSG-1', type: 'main', index: 0 }]] },
-  'Data MSG-1': { main: [[{ node: 'MSG-1', type: 'main', index: 0 }]] },
-  'MSG-1': { main: [[{ node: 'Get Not Bot', type: 'main', index: 0 }]] },
-  'Get Not Bot': { main: [[{ node: 'Data MSG-S', type: 'main', index: 0 }]] },
-  'Data MSG-S': { main: [[{ node: 'MSG-S', type: 'main', index: 0 }]] },
-  'Update': { main: [[{ node: 'If2', type: 'main', index: 0 }]] },
-  'If2': { main: [[{ node: 'Hours Remaining', type: 'main', index: 0 }]] },
-  'Hours Remaining': { main: [[{ node: 'If1', type: 'main', index: 0 }]] },
-  'If1': {
+  Get_Project: {
     main: [
-      [{ node: 'Formated Date4', type: 'main', index: 0 }],
-      [{ node: 'Formated Date5', type: 'main', index: 0 }]
+      [{ node: nodesData.Get_Bot.name, type: 'main', index: 0 }]
     ]
   },
-  'Formated Date4': { main: [[{ node: 'Data MSG-5', type: 'main', index: 0 }]] },
-  'Data MSG-5': { main: [[{ node: 'MSG-5', type: 'main', index: 0 }]] },
-  'Formated Date5': { main: [[{ node: 'Data MSG-4', type: 'main', index: 0 }]] },
-  'Data MSG-4': { main: [[{ node: 'MSG-4', type: 'main', index: 0 }]] }
+  Get_Bot: {
+    main: [
+      [{ node: nodesData.ENV.name, type: 'main', index: 0 }]
+    ]
+  },
+  ENV: {
+    main: [
+      [{ node: nodesData.Session_Data.name, type: 'main', index: 0 }]
+    ]
+  },
+  Session_Data: {
+    main: [
+      [{ node: nodesData.Event_Type.name, type: 'main', index: 0 }]
+    ]
+  },
+  Event_Type: {
+    main: [
+      [{ node: nodesData.Create_Lead.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Get_Lead_Cancel.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Get_Lead_Reschedule.name, type: 'main', index: 0 }]
+    ]
+  },
+  Create_Lead: {
+    main: [
+      [{ node: nodesData.Form.name, type: 'main', index: 0 }]
+    ]
+  },
+  Get_Lead_Cancel: {
+    main: [
+      [{ node: nodesData.Cancel.name, type: 'main', index: 0 }]
+    ]
+  },
+  Get_Lead_Reschedule: {
+    main: [
+      [{ node: nodesData.Reschedule.name, type: 'main', index: 0 }]
+    ]
+  },
+  Form: {
+    main: [
+      [{ node: nodesData.If_Bot_Create.name, type: 'main', index: 0 }]
+    ]
+  },
+  If_Bot_Create: {
+    main: [
+      [{ node: nodesData.Formated_Date.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Get_Not_Bot.name, type: 'main', index: 0 }]
+    ]
+  },
+  Formated_Date: {
+    main: [
+      [{ node: nodesData.Data_MSG_1.name, type: 'main', index: 0 }]
+    ]
+  },
+  Data_MSG_1: {
+    main: [
+      [{ node: nodesData.MSG_1.name, type: 'main', index: 0 }]
+    ]
+  },
+  MSG_1: {
+    main: [
+      [{ node: nodesData.Get_Not_Bot.name, type: 'main', index: 0 }]
+    ]
+  },
+  Get_Not_Bot: {
+    main: [
+      [{ node: nodesData.Data_MSG_S.name, type: 'main', index: 0 }]
+    ]
+  },
+  Data_MSG_S: {
+    main: [
+      [{ node: nodesData.MSG_S.name, type: 'main', index: 0 }]
+    ]
+  },
+  Reschedule: {
+    main: [
+      [{ node: nodesData.If_Bot_Reschedule.name, type: 'main', index: 0 }]
+    ]
+  },
+  If_Bot_Reschedule: {
+    main: [
+      [{ node: nodesData.Hours_Remaining.name, type: 'main', index: 0 }]
+    ]
+  },
+  Hours_Remaining: {
+    main: [
+      [{ node: nodesData.If_Today.name, type: 'main', index: 0 }]
+    ]
+  },
+  If_Today: {
+    main: [
+      [{ node: nodesData.Formated_Date_A.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Formated_Date_B.name, type: 'main', index: 0 }]
+    ]
+  },
+  Formated_Date_A: {
+    main: [
+      [{ node: nodesData.Data_MSG_A.name, type: 'main', index: 0 }]
+    ]
+  },
+  Data_MSG_A: {
+    main: [
+      [{ node: nodesData.MSG_A.name, type: 'main', index: 0 }]
+    ]
+  },
+  Formated_Date_B: {
+    main: [
+      [{ node: nodesData.Data_MSG_B.name, type: 'main', index: 0 }]
+    ]
+  },
+  Data_MSG_B: {
+    main: [
+      [{ node: nodesData.MSG_B.name, type: 'main', index: 0 }]
+    ]
+  }
 };
 
 const workflow = {
@@ -856,7 +977,7 @@ const workflow = {
     executionOrder: 'v1',
     timezone: 'Europe/Madrid',
     errorWorkflow: 'cTGB7gdBc2cq8Gss'
-  },
+  }
 };
 
-return [{ json: workflow }]
+return [{ json: workflow }];
