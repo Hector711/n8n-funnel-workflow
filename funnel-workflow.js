@@ -241,7 +241,7 @@ const nodes = [
     position: nodesData.Get_Bot.position,
     notesInFlow: true,
     alwaysOutputData: true,
-    onError: 'continue',
+    onError: 'Continue',
     credentials: { notionApi: { id: credentials.notion.pbs } },
     parameters: {
       resource: 'databasePage',
