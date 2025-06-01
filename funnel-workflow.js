@@ -31,26 +31,26 @@ const nodesData = {
   Data_MSG_S: { id: uuidv4(), name: 'Data MSG-S', position: [2160, 400] },
   MSG_S: { id: uuidv4(), name: 'MSG-S', position: [2340, 400] },
   // ──────────── CANCEL ──────────────
-  Get_Lead_Cancel: { id: uuidv4(), name: 'Get Lead Cancel', position: [1440, 400] },
+  Get_Lead_Cancel: { id: uuidv4(), name: 'Get Lead Cancel', position: [1260, 400] },
   Cancel: { id: uuidv4(), name: 'Cancel', position: [1440, 400] },
   // ─────────── RESCHEDULE ───────────────
-  Get_Lead_Reschedule: { id: uuidv4(), name: 'Get Lead Reschedule', position: [1620, 400] },
+  Get_Lead_Reschedule: { id: uuidv4(), name: 'Get Lead Reschedule', position: [1260, 580] },
   Reschedule: { id: uuidv4(), name: 'Reschedule', position: [1440, 580] },
-  If_Bot_Reschedule: { id: uuidv4(), name: 'If Bot Reschedule', position: [1440, 760] },
-  Hours_Remaining: { id: uuidv4(), name: 'Hours Remaining', position: [1620, 760] },
-  If_Today: { id: uuidv4(), name: 'If Today', position: [1800, 760] },
+  If_Bot_Reschedule: { id: uuidv4(), name: 'If Bot Reschedule', position: [1620, 580] },
+  Hours_Remaining: { id: uuidv4(), name: 'Hours Remaining', position: [1800, 580] },
+  If_Today: { id: uuidv4(), name: 'If Today', position: [1980, 580] },
   // ──────────── Today ──────────────
-  Formatted_Date_Today: { id: uuidv4(), name: 'Formatted Date Today', position: [1980, 580] },
-  Data_MSG_Today: { id: uuidv4(), name: 'Data MSG-Today', position: [2160, 580] },
-  MSG_Today: { id: uuidv4(), name: 'MSG-Today', position: [2160, 1000] },
+  Formatted_Date_Today: { id: uuidv4(), name: 'Formatted Date Today', position: [2160, 400] },
+  Data_MSG_Today: { id: uuidv4(), name: 'Data MSG-Today', position: [2340, 400] },
+  MSG_Today: { id: uuidv4(), name: 'MSG-Today', position: [2520, 400] },
   // ──────────── NOT Today ──────────────
   Formatted_Date_Not_Today: {
     id: uuidv4(),
     name: 'Formatted Date Not Today',
-    position: [1980, 1000],
+    position: [2160, 760],
   },
-  Data_MSG_Not_Today: { id: uuidv4(), name: 'Data MSG-Not-Today', position: [2160, 1000] },
-  MSG_Not_Today: { id: uuidv4(), name: 'MSG-Not-Today', position: [2340, 1000] },
+  Data_MSG_Not_Today: { id: uuidv4(), name: 'Data MSG-Not-Today', position: [2340, 760] },
+  MSG_Not_Today: { id: uuidv4(), name: 'MSG-Not-Today', position: [2520, 760] },
 };
 
 const credentials = {
