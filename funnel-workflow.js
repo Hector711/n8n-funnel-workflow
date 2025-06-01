@@ -1252,13 +1252,13 @@ const connections = {
   "Formatted Date Today": {
     "main": [[{ "node": nodesData.Data_MSG_Today.name, "type": 'main', "index": 0 }]],
   },
-  "Data MSG Today": {
+  "Data MSG-Today": {
     "main": [[{ "node": nodesData.MSG_Today.name, "type": 'main', "index": 0 }]],
   },
   "Formatted Date Not Today": {
     "main": [[{ "node": nodesData.Data_MSG_Not_Today.name, "type": 'main', "index": 0 }]],
   },
-  "Data MSG Not Today": {
+  "Data MSG-Not-Today": {
     "main": [[{ "node": nodesData.MSG_Not_Today.name, "type": 'main', "index": 0 }]],
   },
 };
