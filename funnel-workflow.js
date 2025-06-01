@@ -39,14 +39,14 @@ const nodesData = {
   If_Bot_Reschedule: { id: uuidv4(), name: 'If Bot Reschedule', position: [1440, 760] },
   Hours_Remaining: { id: uuidv4(), name: 'Hours Remaining', position: [1620, 760] },
   If_Today: { id: uuidv4(), name: 'If Today', position: [1800, 760] },
-  // ──────────── TODAY ──────────────
-  Formated_Date_A: { id: uuidv4(), name: 'Formated Date A', position: [1980, 580] },
-  Data_MSG_A: { id: uuidv4(), name: 'Data MSG-A', position: [2160, 580] },
-  MSG_A: { id: uuidv4(), name: 'MSG-A', position: [2340, 580] },
-  // ──────────── NOT TODAY ──────────────
-  Formated_Date_B: { id: uuidv4(), name: 'Formated Date B', position: [1980, 1000] },
-  Data_MSG_B: { id: uuidv4(), name: 'Data MSG-B', position: [2160, 1000] },
-  MSG_B: { id: uuidv4(), name: 'MSG-B', position: [2340, 1000] },
+  // ──────────── Today ──────────────
+  Formated_Date_Today: { id: uuidv4(), name: 'Formated Date A', position: [1980, 580] },
+  Data_MSG_Today: { id: uuidv4(), name: 'Data MSG-Today', position: [2160, 580] },
+  MSG_Today: { id: uuidv4(), name: 'MSG-Today', position: [2160, 1000] },
+  // ──────────── NOT Today ──────────────
+  Formated_Date_Not_Today: { id: uuidv4(), name: 'Formated Date B', position: [1980, 1000] },
+  Data_MSG_Not_Today: { id: uuidv4(), name: 'Data MSG-Not-Today', position: [2160, 1000] },
+  MSG_Not_Today: { id: uuidv4(), name: 'MSG-Not-Today', position: [2340, 1000] },
 };
 
 const credentials = {
@@ -160,8 +160,8 @@ return [
   Formated_Date: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];`,
   Hours_Remaining: `// Fuente: nodo "Session Data"\nconst sessionItems = $items('Session Data');\n\nreturn sessionItems.map(item => {\n\t// Hora de la sesión\n\tconst sessionTimeRaw = item.json.scheduled_event.start_time;\n\tconst sessionTime    = new Date(sessionTimeRaw);\n\n\t// Hora actual (n8n insertará su timestamp en $now)\n\tconst nowDate        = new Date($now);\n\n\t// Diferencia en horas\n\tconst differenceMs   = sessionTime - nowDate;\n\tconst hoursRemaining = Math.floor(differenceMs / (1000 * 60 * 60));\n\n\t// Devolvemos todo el JSON original + los campos calculados\n\treturn {\n\t\tjson: {\n\t\t\t...item.json,             // conserva todas las claves/valores originales\n\t\t\tnow: $now,\n\t\t\tstart_session: sessionTimeRaw,\n\t\t\thours_remaining: hoursRemaining\n\t\t}\n\t};\n});\n`,
   If: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
-  Formated_Date_A: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
-  Formated_Date_B: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
+  Formated_Date_Today: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
+  Formated_Date_Not_Today: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
 }
 
 const texts = {
@@ -679,20 +679,20 @@ const nodes = [
     name: nodesData.If_Today.name
   },
   {
-    parameters: { jsCode: jsCode.Formated_Date_A },
+    parameters: { jsCode: jsCode.Formated_Date_Today },
     type: 'n8n-nodes-base.code',
     typeVersion: 2,
-    position: nodesData.Formated_Date_A.position,
-    id: nodesData.Formated_Date_A.id,
-    name: nodesData.Formated_Date_A.name
+    position: nodesData.Formated_Date_Today.position,
+    id: nodesData.Formated_Date_Today.id,
+    name: nodesData.Formated_Date_Today.name
   },
   {
-    parameters: { jsCode: jsCode.Formated_Date_B },
+    parameters: { jsCode: jsCode.Formated_Date_Not_Today },
     type: 'n8n-nodes-base.code',
     typeVersion: 2,
-    position: nodesData.Formated_Date_B.position,
-    id: nodesData.Formated_Date_B.id,
-    name: nodesData.Formated_Date_B.name
+    position: nodesData.Formated_Date_Not_Today.position,
+    id: nodesData.Formated_Date_Not_Today.id,
+    name: nodesData.Formated_Date_Not_Today.name
   },
   {
     parameters: {
@@ -712,9 +712,9 @@ const nodes = [
     },
     type: 'n8n-nodes-base.set',
     typeVersion: 3.4,
-    position: nodesData.Data_MSG_A.position,
-    id: nodesData.Data_MSG_A.id,
-    name: nodesData.Data_MSG_A.name,
+    position: nodesData.Data_MSG_Today.position,
+    id: nodesData.Data_MSG_Today.id,
+    name: nodesData.Data_MSG_Today.name,
     notesInFlow: true
   },
   {
@@ -746,9 +746,9 @@ const nodes = [
     },
     type: 'n8n-nodes-base.executeWorkflow',
     typeVersion: 1.2,
-    position: [2340, 580],
-    id: '576680a1-df0a-424f-b3de-4a6070fd7ab0',
-    name: 'MSG_B',
+    position: nodesData.Data_MSG_Not_Today.position,
+    id: nodesData.Data_MSG_Not_Today.id,
+    name: nodesData.Data_MSG_Not_Today.name,
     notesInFlow: true
   },
   {
@@ -758,7 +758,7 @@ const nodes = [
           { id: '5a487ac3-0459-4104-a13d-0904fb24f48a', name: 'workflowName', value: '={{ $workflow.name }}', type: 'string' },
           { id: '2fc18e1d-1c54-462f-8504-cb6e61826ea5', name: 'apiKey', value: '={{ $node[\'ENV\'].json.evo_apikey }}', type: 'string' },
           { id: 'a32060c7-4e53-4f30-95be-ad2de2e13209', name: 'botURL', value: '=https://{{ $node[\'ENV\'].json.evo_url }}/message/sendText/{{ $node[\'ENV\'].json.bot_id }}', type: 'string' },
-          { id: '6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f', name: 'messageType', value: 'MSG-1_A', type: 'string' },
+          { id: '6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f', name: 'messageType', value: 'MSG-S', type: 'string' },
           { id: 'caa640c7-6d1a-4d64-865c-84c78c1df786', name: 'sessionDate', value: '={{ $(\'Session Data\').item.json.scheduled_event.start_time }}', type: 'string' },
           { id: '1736e866-b0f4-4634-814b-a6f3d87fb59b', name: 'number', value: '={{ $(\'Session Data\').item.json.user_info.telephone }}', type: 'string' },
           { id: 'a8535472-a454-44a7-bdbd-c64800d47e61', name: 'text', value: '=Llamada reagendada: \n\nNos vemos {{ $json.fechaFormateada }}.\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos.', type: 'string' },
@@ -769,9 +769,9 @@ const nodes = [
     },
     type: 'n8n-nodes-base.set',
     typeVersion: 3.4,
-    position: [2160, 1000],
-    id: nodesData.Data_MSG_A.id,
-    name: nodesData.Data_MSG_A.name,
+    position: nodesData.Data_MSG_Today.position,
+    id: nodesData.Data_MSG_Today.id,
+    name: nodesData.Data_MSG_Today.name,
     notesInFlow: true
   },
   {
@@ -803,9 +803,9 @@ const nodes = [
     },
     type: 'n8n-nodes-base.executeWorkflow',
     typeVersion: 1.2,
-    position: nodesData.MSG_B.position,
-    id: nodesData.MSG_B.id,
-    name: nodesData.MSG_B.name,
+    position: nodesData.MSG_Not_Today.position,
+    id: nodesData.MSG_Not_Today.id,
+    name: nodesData.MSG_Not_Today.name,
     notesInFlow: true
   },
   {
@@ -943,28 +943,28 @@ const connections = {
   },
   If_Today: {
     main: [
-      [{ node: nodesData.Formated_Date_A.name, type: 'main', index: 0 }],
-      [{ node: nodesData.Formated_Date_B.name, type: 'main', index: 0 }]
+      [{ node: nodesData.Formated_Date_Today.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Formated_Date_Not_Today.name, type: 'main', index: 0 }]
     ]
   },
-  Formated_Date_A: {
+  Formated_Date_Today: {
     main: [
-      [{ node: nodesData.Data_MSG_A.name, type: 'main', index: 0 }]
+      [{ node: nodesData.Data_MSG_Today.name, type: 'main', index: 0 }]
     ]
   },
-  Data_MSG_A: {
+  Data_MSG_Today: {
     main: [
-      [{ node: nodesData.MSG_A.name, type: 'main', index: 0 }]
+      [{ node: nodesData.MSG_TODAY.name, type: 'main', index: 0 }]
     ]
   },
-  Formated_Date_B: {
+  Formated_Date_Not_Today: {
     main: [
-      [{ node: nodesData.Data_MSG_B.name, type: 'main', index: 0 }]
+      [{ node: nodesData.Data_MSG_Not_Today.name, type: 'main', index: 0 }]
     ]
   },
-  Data_MSG_B: {
+  Data_MSG_Not_Today: {
     main: [
-      [{ node: nodesData.MSG_B.name, type: 'main', index: 0 }]
+      [{ node: nodesData.MSG_Not_Today.name, type: 'main', index: 0 }]
     ]
   }
 };
