@@ -8,8 +8,8 @@ function uuidv4() {
 
 const expr = (inner) => '=' + '{' + '{ ' + inner + ' }}';
 
-const input = $input.first().json;
-const projectNameSlug = input.workflow_name.trim().toLowerCase().replace(/\s+/g, '-');
+const workflowDataInput = $('Workflow Data').first().json;
+const projectNameSlug = workflowDataInput.workflow_name.trim().toLowerCase().replace(/\s+/g, '-');
 const projectPageID = $('Data').first().json.projectPageID || '';
 
 const ids = {
@@ -849,7 +849,7 @@ const connections = {
 };
 
 const workflow = {
-  name: input.workflow_name,
+  name: workflowDataInput.workflow_name,
   nodes,
   connections,
   settings: {
