@@ -237,33 +237,33 @@ const nodes = [
           {
             id: uuidv4(),
             name: 'evo_url',
-            value: expr(`$node["Get Bot"].item.json.property_server_url || null`),
+            value: expr(`$('Get Bot').item.json.property_server_url || null`),
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'evo_apikey',
-            value: expr(`$node["Get Bot"].item.json.property_api_key || null`),
+            value: expr(`$('Get Bot').item.json.property_api_key || null`),
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'bot_id',
-            value: expr(`$node["Get Bot"].item.json.property_bot_id || null`),
+            value: expr(`$('Get Bot').item.json.property_bot_id || null`),
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'db_id',
             value: expr(
-              `$node["Get Project"].item.json.property_crm_db.split('/') [3].split('?')[0]`
+              `$('Get Project').item.json.property_crm_db.split('/') [3].split('?')[0]`
             ),
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'client_whatsapp',
-            value: expr(`$node["Get Project"].item.json.property_notificaciones`),
+            value: expr(`$('Get Project').item.json.property_notificaciones`),
             type: 'string',
           },
         ],
@@ -1222,16 +1222,16 @@ const connections = {
   "Formatted Date": {
     "main": [[{ "node": nodesData.Data_MSG_1.name, "type": 'main', "index": 0 }]],
   },
-  "Data MSG 1": {
+  "Data MSG-1": {
     "main": [[{ "node": nodesData.MSG_1.name, "type": 'main', "index": 0 }]],
   },
-  "MSG 1": {
+  "MSG-1": {
     "main": [[{ "node": nodesData.Get_Not_Bot.name, "type": 'main', "index": 0 }]],
   },
   "Get Not Bot": {
     "main": [[{ "node": nodesData.Data_MSG_S.name, "type": 'main', "index": 0 }]],
   },
-  "Data MSG S": {
+  "Data MSG-S": {
     "main": [[{ "node": nodesData.MSG_S.name, "type": 'main', "index": 0 }]],
   },
   "Reschedule": {
