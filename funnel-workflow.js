@@ -183,7 +183,7 @@ const setConfig = {
     name: 'text',
     value: {
       MSG_1: `=¡Hola \${$node['Session Data'].json.user_info.name}! 👋\n\nEncantado de saludarte, te escribo por la llamada que tienes agendada conmigo.\n\nPronto te contactaré para confirmar algunos detalles importantes. Es fundamental que podamos hablar para dejar todo listo para tu sesión.\n\nPor favor, mantente atent@ a tu teléfono 📞\n\n⚠️ Si no logramos contactar en las próximas 24 horas, cancelaremos la llamada.`,
-      MSG_Reschedule: `=Llamada reagendada: \n\nNos vemos \${$json.fechaFormateada}.\${$json.hours_remaining > 18 ? "\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos." : ""}`,
+      MSG_Reschedule: `=Llamada reagendada: \n\nNos vemos \${{$json.fechaFormateada}}.\${{$json.hours_remaining > 18 ? "\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos." : ""}}`,
     },
   },
   pageID: {
