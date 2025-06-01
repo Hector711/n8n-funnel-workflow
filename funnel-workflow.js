@@ -37,13 +37,9 @@ const nodesData = {
   Get_Lead_Reschedule: { id: uuidv4(), name: 'Get Lead Reschedule', position: [1260, 580] },
   Reschedule: { id: uuidv4(), name: 'Reschedule', position: [1440, 580] },
   If_Bot_Reschedule: { id: uuidv4(), name: 'If Bot Reschedule', position: [1620, 580] },
-  Hours_Remaining: { id: uuidv4(), name: 'Hours Remaining', position: [1800, 580] },
-  If_Today: { id: uuidv4(), name: 'If Today', position: [1980, 580] },
   // ──────────── Today ──────────────
-  Data_MSG_Today: { id: uuidv4(), name: 'Data MSG-Today', position: [2160, 580] },
+  Data_MSG_Reschedule: { id: uuidv4(), name: 'Data MSG-Reschedule', position: [2160, 580] },
   MSG_Today: { id: uuidv4(), name: 'MSG-Today', position: [2340, 580] },
-  // ──────────── NOT Today ──────────────
-  Data_MSG_Not_Today: { id: uuidv4(), name: 'Data MSG-Not-Today', position: [2160, 760] },
 };
 
 const credentials = {
@@ -146,7 +142,7 @@ return [
         created_at: toISOWithOffset(createdAt, utcOffset),
         start_time: toISOWithOffset(startTime, utcOffset),
         end_time:   toISOWithOffset(endTime,   utcOffset),
-        join_url:   metainput.videoCallUrl || '',
+        join_url:   metadata.videoCallUrl || '',
         timezone:   timeZone,
         cancel_url: 'https://app.cal.com/booking/' + uid + '?cancel=true',
       },
@@ -154,39 +150,51 @@ return [
     },
   },
 ];`,
-  Formatted_Date: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];`,
-  Hours_Remaining: `const sessionItems = $items('Session Data');
-const opciones = { timeZone: 'Europe/Madrid', hour12: false };
-
-return sessionItems.map(item => {
-  const sessionTimeRaw = item.json.scheduled_event.start_time;
-  const sessionDate = new Date(sessionTimeRaw);
-  const nowDate = new Date($now);
-
-  const differenceMs = sessionDate - nowDate;
-  const hoursRemaining = Math.floor(differenceMs / (1000 * 60 * 60));
-
-  const diaSemana = sessionDate.toLocaleString('es-ES', { ...opciones, weekday: 'long' });
-  const diaMes = sessionDate.toLocaleString('es-ES', { ...opciones, day: 'numeric' });
-  const hora = sessionDate.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });
-  const minutos = sessionDate.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0');
-
-  const fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;
-
-  return {
-    json: {
-      ...item.json,
-      now: $now,
-      start_session: sessionTimeRaw,
-      hours_remaining: hoursRemaining,
-      fechaFormateada: fechaFormateada
-    }
-  };
-});`,
 };
 
-const texts = {
-  MSG_1: `=¡Hola {{ $node['Session Data'].json.user_info.name }}! 👋\n\nEncantado de saludarte, te escribo por la llamada que tienes agendada conmigo.\n\nPronto te contactaré para confirmar algunos detalles importantes. Es fundamental que podamos hablar para dejar todo listo para tu sesión.\n\nPor favor, mantente atent@ a tu teléfono 📞\n\n⚠️ Si no logramos contactar en las próximas 24 horas, cancelaremos la llamada.`,
+const setConfig = {
+  workflowName: {
+    name: 'workflowName',
+    value: '$workflow.name',
+  },
+  apiKey: {
+    name: 'apiKey',
+    value: "$node['ENV'].json.evo_apikey",
+  },
+  botURL: {
+    name: 'botURL',
+    value:
+      "=https://{{ $node['ENV'].json.evo_url }}/message/sendText/{{ $node['ENV'].json.bot_id }}",
+  },
+  messageType: {
+    name: 'messageType',
+    value: {
+      MSG_1: 'MSG-1',
+      MSG_Reschedule: 'MSG-S',
+    },
+  },
+  sessionDate: {
+    name: 'sessionDate',
+    value: "$node['Session Data'].json.scheduled_event.start_time",
+  },
+  number: {
+    name: 'number',
+    value: "$node['Session Data'].json.user_info.telephone",
+  },
+  text: {
+    name: 'text',
+    value: {
+      MSG_1: `=¡Hola {{ $node['Session Data'].json.user_info.name }}! 👋\n\nEncantado de saludarte, te escribo por la llamada que tienes agendada conmigo.\n\nPronto te contactaré para confirmar algunos detalles importantes. Es fundamental que podamos hablar para dejar todo listo para tu sesión.\n\nPor favor, mantente atent@ a tu teléfono 📞\n\n⚠️ Si no logramos contactar en las próximas 24 horas, cancelaremos la llamada.`,
+      MSG_Reschedule: `Llamada reagendada: \n\nNos vemos {{ $json.fechaFormateada }}.{{ $json.hours_remaining > 18 ? "\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos." : "" }}`,
+    },
+  },
+  pageID: {
+    name: 'pageID',
+    value: {
+      MSG_1: "$node['Create Lead'].json.id",
+      MSG_Reschedule: "={{ $node['Get Lead Reschedule'].json.id }}",
+    },
+  },
 };
 
 const nodes = [
@@ -632,38 +640,52 @@ const nodes = [
     parameters: {
       assignments: {
         assignments: [
-          { id: uuidv4(), name: 'workflowName', value: expr('$workflow.name'), type: 'string' },
           {
             id: uuidv4(),
-            name: 'apiKey',
-            value: expr('$node["ENV"].json.evo_apikey'),
+            name: setConfig.workflowName.name,
+            value: setConfig.workflowName.value,
             type: 'string',
           },
           {
             id: uuidv4(),
-            name: 'botURL',
-            value:
-              "=https://{{ $node['ENV'].json.evo_url }}/message/sendText/{{ $node['ENV'].json.bot_id }}",
-            type: 'string',
-          },
-          { id: uuidv4(), name: 'messageType', value: 'MSG-1_A', type: 'string' },
-          {
-            id: uuidv4(),
-            name: 'sessionDate',
-            value: expr('$node["Session Data"].item.json.scheduled_event.start_time'),
+            name: setConfig.apiKey.name,
+            value: setConfig.apiKey.value,
             type: 'string',
           },
           {
             id: uuidv4(),
-            name: 'number',
-            value: expr('$node["Session Data"].item.json.user_info.telephone'),
+            name: setConfig.botURL.name,
+            value: setConfig.botURL.value,
             type: 'string',
           },
-          { id: uuidv4(), name: 'text', value: texts.MSG_1, type: 'string' },
           {
             id: uuidv4(),
-            name: 'pageID',
-            value: expr('$node["Create Lead"].item.json.id'),
+            name: setConfig.messageType.name,
+            value: setConfig.messageType.value,
+            type: 'string',
+          },
+          {
+            id: uuidv4(),
+            name: setConfig.sessionDate.name,
+            value: setConfig.sessionDate.value,
+            type: 'string',
+          },
+          {
+            id: uuidv4(),
+            name: setConfig.number.name,
+            value: setConfig.number.value,
+            type: 'string',
+          },
+          {
+            id: uuidv4(),
+            name: setConfig.text.name,
+            value: setConfig.text.value.MSG_1,
+            type: 'string',
+          },
+          {
+            id: uuidv4(),
+            name: setConfig.pageID.name,
+            value: setConfig.pageID.value.MSG_1,
             type: 'string',
           },
         ],
@@ -742,11 +764,11 @@ const nodes = [
     parameters: {
       assignments: {
         assignments: [
-          { id: uuidv4(), name: 'workflowName', value: expr('$workflow.name'), type: 'string' },
+          { id: uuidv4(), name: 'workflowName', value: '$workflow.name', type: 'string' },
           {
             id: uuidv4(),
             name: 'apiKey',
-            value: expr('$node["Get Not Bot"].json.property_api_key'),
+            value: '$node["Get Not Bot"].json.property_api_key',
             type: 'string',
           },
           {
@@ -761,7 +783,7 @@ const nodes = [
           {
             id: uuidv4(),
             name: 'number',
-            value: expr('$node["ENV"].item.json.client_whatsapp'),
+            value: '$node["ENV"].json.client_whatsapp',
             type: 'string',
           },
           { id: uuidv4(), name: 'text', value: '🤖: Ha entrado un nuevo lead!', type: 'string' },
@@ -935,69 +957,31 @@ const nodes = [
     },
   },
   {
-    id: nodesData.Hours_Remaining.id,
-    name: nodesData.Hours_Remaining.name,
-    type: 'n8n-nodes-base.code',
-    typeVersion: 2,
-    position: nodesData.Hours_Remaining.position,
-    parameters: {
-      jsCode: jsCode.Hours_Remaining,
-    },
-  },
-  {
-    id: nodesData.If_Today.id,
-    name: nodesData.If_Today.name,
-    type: 'n8n-nodes-base.if',
-    typeVersion: 2.2,
-    position: nodesData.If_Today.position,
-    parameters: {
-      conditions: {
-        options: {
-          caseSensitive: true,
-          leftValue: '',
-          typeValidation: 'strict',
-          version: 2,
-        },
-        conditions: [
-          {
-            id: '862a5e54-0722-4dc6-994b-280234a4ccf9',
-            leftValue: '={{ $json.hours_remaining }}',
-            rightValue: 16,
-            operator: { type: 'number', operation: 'lt' },
-          },
-        ],
-        combinator: 'and',
-      },
-      options: {},
-    },
-  },
-  {
-    id: nodesData.Data_MSG_Today.id,
-    name: nodesData.Data_MSG_Today.name,
+    id: nodesData.Data_MSG_Reschedule.id,
+    name: nodesData.Data_MSG_Reschedule.name,
     type: 'n8n-nodes-base.set',
     typeVersion: 3.4,
-    position: nodesData.Data_MSG_Today.position,
+    position: nodesData.Data_MSG_Reschedule.position,
     notesInFlow: true,
     parameters: {
       assignments: {
         assignments: [
           {
             id: '5a487ac3-0459-4104-a13d-0904fb24f48a',
-            name: 'workflowName',
-            value: '={{ $workflow.name }}',
+            name: setConfig.workflowName.name,
+            value: setConfig.workflowName.value,
             type: 'string',
           },
           {
             id: '2fc18e1d-1c54-462f-8504-cb6e61826ea5',
-            name: 'apiKey',
-            value: "={{ $node['ENV'].json.evo_apikey }}",
+            name: setConfig.apiKey.name,
+            value: setConfig.apiKey.value,
             type: 'string',
           },
           {
             id: 'a32060c7-4e53-4f30-95be-ad2de2e13209',
-            name: 'botURL',
-            value:
-              "=https://{{ $node['ENV'].json.evo_url }}/message/sendText/{{ $node['ENV'].json.bot_id }}",
+            name: setConfig.botURL.name,
+            value: setConfig.botURL.value,
             type: 'string',
           },
           {
@@ -1008,27 +992,26 @@ const nodes = [
           },
           {
             id: 'caa640c7-6d1a-4d64-865c-84c78c1df786',
-            name: 'sessionDate',
-            value: "={{ $('Session Data').item.json.scheduled_event.start_time }}",
+            name: setConfig.sessionDate.name,
+            value: setConfig.sessionDate.value,
             type: 'string',
           },
           {
             id: '1736e866-b0f4-4634-814b-a6f3d87fb59b',
-            name: 'number',
-            value: "={{ $('Session Data').item.json.user_info.telephone }}",
+            name: setConfig.number.name,
+            value: setConfig.number.value,
             type: 'string',
           },
           {
             id: 'a8535472-a454-44a7-bdbd-c64800d47e61',
-            name: 'text',
-            value:
-              '=Llamada reagendada: \n\nNos vemos {{ $json.fechaFormateada }}.\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos.',
+            name: setConfig.text.name,
+            value: setConfig.text.value.MSG_Today,
             type: 'string',
           },
           {
             id: 'b12c92dd-3280-4adb-b7d2-822ea93a1b8b',
             name: 'pageID',
-            value: "={{ $('Get Lead Reschedule').item.json.id }}",
+            value: setConfig.pageID.value.MSG_Reschedule,
             type: 'string',
           },
         ],
@@ -1068,71 +1051,6 @@ const nodes = [
         convertFieldsToString: true,
       },
       options: { waitForSubWorkflow: false },
-    },
-  },
-  {
-    id: nodesData.Data_MSG_Not_Today.id,
-    name: nodesData.Data_MSG_Not_Today.name,
-    type: 'n8n-nodes-base.set',
-    typeVersion: 3.4,
-    position: nodesData.Data_MSG_Not_Today.position,
-    notesInFlow: true,
-    parameters: {
-      assignments: {
-        assignments: [
-          {
-            id: '5a487ac3-0459-4104-a13d-0904fb24f48a',
-            name: 'workflowName',
-            value: '={{ $workflow.name }}',
-            type: 'string',
-          },
-          {
-            id: '2fc18e1d-1c54-462f-8504-cb6e61826ea5',
-            name: 'apiKey',
-            value: "={{ $node['ENV'].json.evo_apikey }}",
-            type: 'string',
-          },
-          {
-            id: 'a32060c7-4e53-4f30-95be-ad2de2e13209',
-            name: 'botURL',
-            value:
-              "=https://{{ $node['ENV'].json.evo_url }}/message/sendText/{{ $node['ENV'].json.bot_id }}",
-            type: 'string',
-          },
-          {
-            id: '6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f',
-            name: 'messageType',
-            value: 'MSG-S',
-            type: 'string',
-          },
-          {
-            id: 'caa640c7-6d1a-4d64-865c-84c78c1df786',
-            name: 'sessionDate',
-            value: "={{ $('Session Data').item.json.scheduled_event.start_time }}",
-            type: 'string',
-          },
-          {
-            id: '1736e866-b0f4-4634-814b-a6f3d87fb59b',
-            name: 'number',
-            value: "={{ $('Session Data').item.json.user_info.telephone }}",
-            type: 'string',
-          },
-          {
-            id: 'a8535472-a454-44a7-bdbd-c64800d47e61',
-            name: 'text',
-            value:
-              '=Llamada reagendada: \n\nNos vemos {{ $json.fechaFormateada }}.\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos.',
-            type: 'string',
-          },
-          {
-            id: 'b12c92dd-3280-4adb-b7d2-822ea93a1b8b',
-            name: 'pageID',
-            value: "={{ $('Get Lead Reschedule').item.json.id }}",
-            type: 'string',
-          },
-        ],
-      },
-      options: {},
     },
   },
 ];
@@ -1200,18 +1118,9 @@ const connections = {
     main: [[{ node: nodesData.If_Bot_Reschedule.name, type: 'main', index: 0 }]],
   },
   'If Bot Reschedule': {
-    main: [[{ node: nodesData.Hours_Remaining.name, type: 'main', index: 0 }]],
+    main: [[{ node: nodesData.Data_MSG_Reschedule.name, type: 'main', index: 0 }]],
   },
-  'Hours Remaining': {
-    main: [[{ node: nodesData.If_Today.name, type: 'main', index: 0 }]],
-  },
-  'If Today': {
-    main: [
-      [{ node: nodesData.Data_MSG_Today.name, type: 'main', index: 0 }],
-      [{ node: nodesData.Data_MSG_Not_Today.name, type: 'main', index: 0 }],
-    ],
-  },
-  'Data MSG-Today': {
+  'Data MSG-Reschedule': {
     main: [[{ node: nodesData.MSG_Today.name, type: 'main', index: 0 }]],
   },
 };
