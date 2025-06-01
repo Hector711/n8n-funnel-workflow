@@ -9,7 +9,7 @@ function uuidv4() {
 const expr = inner => '=' + '{' + '{ ' + inner + ' }}';
 
 const workflowDataInput = $('Workflow Data').first().json;
-const projectNameSlug = workflowDataInput.project_slug
+const projectNameSlug = workflowDataInput.project_slug;
 const projectPageID = $('Data').first().json.projectPageID || '';
 
 const nodesData = {
@@ -154,16 +154,15 @@ return [
 const setConfig = {
   workflowName: {
     name: 'workflowName',
-    value: "={{ $workflow.name }}",
+    value: expr('$workflow.name'),
   },
   apiKey: {
     name: 'apiKey',
-    value: "={{ $node['ENV.json.evo_apikey }}",
+    value: expr("$node['ENV'].json.evo_apikey"),
   },
   botURL: {
     name: 'botURL',
-    value:
-      "=https://{{ $node['ENV'].json.evo_url }}/message/sendText/{{ $node['ENV'].json.bot_id }}",
+    value: `=https://\${$node['ENV'].json.evo_url}/message/sendText/\${$node['ENV'].json.bot_id}`,
   },
   messageType: {
     name: 'messageType',
@@ -174,24 +173,24 @@ const setConfig = {
   },
   sessionDate: {
     name: 'sessionDate',
-    value: "={{ $node['Session Data'].json.scheduled_event.start_time }}",
+    value: expr("$node['Session Data'].json.scheduled_event.start_time"),
   },
   number: {
     name: 'number',
-    value: "={{ $node['Session Data'].json.user_info.telephone }}",
+    value: expr("$node['Session Data'].json.user_info.telephone"),
   },
   text: {
     name: 'text',
     value: {
-      MSG_1: `=¡Hola {{ $node['Session Data'].json.user_info.name }}! 👋\n\nEncantado de saludarte, te escribo por la llamada que tienes agendada conmigo.\n\nPronto te contactaré para confirmar algunos detalles importantes. Es fundamental que podamos hablar para dejar todo listo para tu sesión.\n\nPor favor, mantente atent@ a tu teléfono 📞\n\n⚠️ Si no logramos contactar en las próximas 24 horas, cancelaremos la llamada.`,
-      MSG_Reschedule: `=Llamada reagendada: \n\nNos vemos {{ $json.fechaFormateada }}.{{ $json.hours_remaining > 18 ? "\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos." : "" }}`,
+      MSG_1: `=¡Hola \${$node['Session Data'].json.user_info.name}! 👋\n\nEncantado de saludarte, te escribo por la llamada que tienes agendada conmigo.\n\nPronto te contactaré para confirmar algunos detalles importantes. Es fundamental que podamos hablar para dejar todo listo para tu sesión.\n\nPor favor, mantente atent@ a tu teléfono 📞\n\n⚠️ Si no logramos contactar en las próximas 24 horas, cancelaremos la llamada.`,
+      MSG_Reschedule: `=Llamada reagendada: \n\nNos vemos \${$json.fechaFormateada}.\${$json.hours_remaining > 18 ? "\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos." : ""}`,
     },
   },
   pageID: {
     name: 'pageID',
     value: {
-      MSG_1: "={{ $node['Create Lead'].json.id }}",
-      MSG_Reschedule: "={{ $node['Get Lead Reschedule'].json.id }}",
+      MSG_1: expr("$node['Create Lead'].json.id"),
+      MSG_Reschedule: expr("$node['Get Lead Reschedule'].json.id"),
     },
   },
 };
@@ -262,31 +261,31 @@ const nodes = [
           {
             id: uuidv4(),
             name: 'evo_url',
-            value: "={{ $node['Get Bot'].json.property_server_url || null }}",
+            value: expr("$node['Get Bot'].json.property_server_url || null"),
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'evo_apikey',
-            value: "={{ $node['Get Bot'].json.property_api_key || null }}",
+            value: expr("$node['Get Bot'].json.property_api_key || null"),
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'bot_id',
-            value: "={{ $node['Get Bot'].json.property_bot_id || null }}",
+            value: expr("$node['Get Bot'].json.property_bot_id || null"),
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'db_id',
-            value: "={{ $node['Get Project'].json.property_crm_db.split('/')[3].split('?')[0] }}",
+            value: expr("$node['Get Project'].json.property_crm_db.split('/')[3].split('?')[0]"),
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'client_whatsapp',
-            value: "={{ $node['Get Project'].json.property_notificaciones }}",
+            value: expr("$node['Get Project'].json.property_notificaciones"),
             type: 'string',
           },
         ],
@@ -430,11 +429,15 @@ const nodes = [
             text: {
               text: [
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[0]?.question ? "Pregunta 1: " : "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[0]?.question ? "Pregunta 1: " : ""'
+                  ),
                   annotationUi: { bold: true, color: 'blue' },
                 },
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[0]?.question || "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[0]?.question || ""'
+                  ),
                   annotationUi: { italic: true, color: 'gray' },
                 },
               ],
@@ -442,19 +445,24 @@ const nodes = [
           },
           {
             type: 'bulleted_list_item',
-            textContent:
-              '= {{ $("Session Data").item.json.questions_and_answers[0]?.answer || " " }}',
+            textContent: expr(
+              '$("Session Data").item.json.questions_and_answers[0]?.answer || " "'
+            ),
           },
           {
             richText: true,
             text: {
               text: [
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[1]?.question ? "Pregunta 2: " : "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[1]?.question ? "Pregunta 2: " : ""'
+                  ),
                   annotationUi: { bold: true, color: 'blue' },
                 },
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[1]?.question || "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[1]?.question || ""'
+                  ),
                   annotationUi: { italic: true, color: 'gray' },
                 },
               ],
@@ -462,19 +470,24 @@ const nodes = [
           },
           {
             type: 'bulleted_list_item',
-            textContent:
-              '= {{ $("Session Data").item.json.questions_and_answers[1]?.answer || " " }}',
+            textContent: expr(
+              '$("Session Data").item.json.questions_and_answers[1]?.answer || " "'
+            ),
           },
           {
             richText: true,
             text: {
               text: [
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[2]?.question ? "Pregunta 3: " : "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[2]?.question ? "Pregunta 3: " : ""'
+                  ),
                   annotationUi: { bold: true, color: 'blue' },
                 },
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[2]?.question || "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[2]?.question || ""'
+                  ),
                   annotationUi: { italic: true, color: 'gray' },
                 },
               ],
@@ -482,19 +495,24 @@ const nodes = [
           },
           {
             type: 'bulleted_list_item',
-            textContent:
-              '= {{ $("Session Data").item.json.questions_and_answers[2]?.answer || " " }}',
+            textContent: expr(
+              '$("Session Data").item.json.questions_and_answers[2]?.answer || " "'
+            ),
           },
           {
             richText: true,
             text: {
               text: [
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[3]?.question ? "Pregunta 4: " : "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[3]?.question ? "Pregunta 4: " : ""'
+                  ),
                   annotationUi: { bold: true, color: 'blue' },
                 },
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[3]?.question || "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[3]?.question || ""'
+                  ),
                   annotationUi: { italic: true, color: 'gray' },
                 },
               ],
@@ -502,19 +520,24 @@ const nodes = [
           },
           {
             type: 'bulleted_list_item',
-            textContent:
-              '= {{ $("Session Data").item.json.questions_and_answers[3]?.answer || " " }}',
+            textContent: expr(
+              '$("Session Data").item.json.questions_and_answers[3]?.answer || " "'
+            ),
           },
           {
             richText: true,
             text: {
               text: [
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[4]?.question ? "Pregunta 5: " : "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[4]?.question ? "Pregunta 5: " : ""'
+                  ),
                   annotationUi: { bold: true, color: 'blue' },
                 },
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[4]?.question || "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[4]?.question || ""'
+                  ),
                   annotationUi: { italic: true, color: 'gray' },
                 },
               ],
@@ -522,19 +545,24 @@ const nodes = [
           },
           {
             type: 'bulleted_list_item',
-            textContent:
-              '= {{ $("Session Data").item.json.questions_and_answers[4]?.answer || " " }}',
+            textContent: expr(
+              '$("Session Data").item.json.questions_and_answers[4]?.answer || " "'
+            ),
           },
           {
             richText: true,
             text: {
               text: [
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[5]?.question ? "Pregunta 6: " : "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[5]?.question ? "Pregunta 6: " : ""'
+                  ),
                   annotationUi: { bold: true, color: 'blue' },
                 },
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[5]?.question || "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[5]?.question || ""'
+                  ),
                   annotationUi: { italic: true, color: 'gray' },
                 },
               ],
@@ -542,19 +570,24 @@ const nodes = [
           },
           {
             type: 'bulleted_list_item',
-            textContent:
-              '= {{ $("Session Data").item.json.questions_and_answers[5]?.answer || " " }}',
+            textContent: expr(
+              '$("Session Data").item.json.questions_and_answers[5]?.answer || " "'
+            ),
           },
           {
             richText: true,
             text: {
               text: [
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[6]?.question ? "Pregunta 7: " : "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[6]?.question ? "Pregunta 7: " : ""'
+                  ),
                   annotationUi: { bold: true, color: 'blue' },
                 },
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[6]?.question || "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[6]?.question || ""'
+                  ),
                   annotationUi: { italic: true, color: 'gray' },
                 },
               ],
@@ -562,19 +595,24 @@ const nodes = [
           },
           {
             type: 'bulleted_list_item',
-            textContent:
-              '= {{ $("Session Data").item.json.questions_and_answers[6]?.answer || " " }}',
+            textContent: expr(
+              '$("Session Data").item.json.questions_and_answers[6]?.answer || " "'
+            ),
           },
           {
             richText: true,
             text: {
               text: [
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[7]?.question ? "Pregunta 8: " : "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[7]?.question ? "Pregunta 8: " : ""'
+                  ),
                   annotationUi: { bold: true, color: 'blue' },
                 },
                 {
-                  text: '= {{ $("Session Data").item.json.questions_and_answers[7]?.question || "" }}',
+                  text: expr(
+                    '$("Session Data").item.json.questions_and_answers[7]?.question || ""'
+                  ),
                   annotationUi: { italic: true, color: 'gray' },
                 },
               ],
@@ -582,8 +620,9 @@ const nodes = [
           },
           {
             type: 'bulleted_list_item',
-            textContent:
-              '= {{ $("Session Data").item.json.questions_and_answers[7]?.answer || " " }}',
+            textContent: expr(
+              '$("Session Data").item.json.questions_and_answers[7]?.answer || " "'
+            ),
           },
         ],
       },
@@ -605,7 +644,7 @@ const nodes = [
         },
         conditions: [
           {
-            leftValue: "={{ $node['ENV'].json.bot_id }}",
+            leftValue: expr("$node['ENV'].json.bot_id"),
             rightValue: '',
             operator: {
               type: 'string',
@@ -753,18 +792,17 @@ const nodes = [
     parameters: {
       assignments: {
         assignments: [
-          { id: uuidv4(), name: 'workflowName', value: '$workflow.name', type: 'string' },
+          { id: uuidv4(), name: 'workflowName', value: expr('$workflow.name'), type: 'string' },
           {
             id: uuidv4(),
             name: 'apiKey',
-            value: '$node["Get Not Bot"].json.property_api_key',
+            value: expr('$node["Get Not Bot"].json.property_api_key'),
             type: 'string',
           },
           {
             id: uuidv4(),
             name: 'botURL',
-            value:
-              "=https://{{ $node['Get Not Bot'].json.property_server_url }}/message/sendText/{{ $node['Get Not Bot'].json.property_bot_id }}",
+            value: `=https://\${$node['Get Not Bot'].json.property_server_url}/message/sendText/\${$node['Get Not Bot'].json.property_bot_id}`,
             type: 'string',
           },
           { id: uuidv4(), name: 'messageType', value: 'MSG-S', type: 'string' },
@@ -772,7 +810,7 @@ const nodes = [
           {
             id: uuidv4(),
             name: 'number',
-            value: '$node["ENV"].json.client_whatsapp',
+            value: expr('$node["ENV"].json.client_whatsapp'),
             type: 'string',
           },
           { id: uuidv4(), name: 'text', value: '🤖: Ha entrado un nuevo lead!', type: 'string' },
@@ -936,7 +974,7 @@ const nodes = [
         conditions: [
           {
             id: '68706d95-5dad-4795-b348-0e424ea1104c',
-            leftValue: "={{ $node['ENV'].json.bot_id }}",
+            leftValue: expr("$node['ENV'].json.bot_id"),
             rightValue: '',
             operator: { type: 'string', operation: 'notEmpty', singleValue: true },
           },
@@ -1026,14 +1064,14 @@ const nodes = [
       workflowInputs: {
         mappingMode: 'defineBelow',
         value: {
-          workflowName: '={{ $json.workflowName }}',
-          messageType: '={{ $json.messageType }}',
-          number: '={{ $json.number }}',
-          pageID: '={{ $json.pageID }}',
-          sessionDate: '={{ $json.sessionDate }}',
-          botURL: '={{ $json.botURL }}',
-          apiKey: '={{ $json.apiKey }}',
-          text: '={{ $json.text }}',
+          workflowName: expr('$json.workflowName'),
+          messageType: expr('$json.messageType'),
+          number: expr('$json.number'),
+          pageID: expr('$json.pageID'),
+          sessionDate: expr('$json.sessionDate'),
+          botURL: expr('$json.botURL'),
+          apiKey: expr('$json.apiKey'),
+          text: expr('$json.text'),
         },
         matchingColumns: [],
         schema: [],
@@ -1120,7 +1158,7 @@ const workflow = {
     executionOrder: 'v1',
     timezone: 'Europe/Madrid',
     errorWorkflow: 'cTGB7gdBc2cq8Gss',
-    saveExecutionProgress: true
+    saveExecutionProgress: true,
   },
 };
 
