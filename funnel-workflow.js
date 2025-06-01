@@ -24,7 +24,6 @@ const nodesData = {
   Create_Lead: { id: uuidv4(), name: 'Create Lead', position: [1260, 220] },
   Form: { id: uuidv4(), name: 'Form', position: [1620, 220] },
   If_Bot_Create: { id: uuidv4(), name: 'If Bot Create', position: [1800, 220] },
-  Formatted_Date: { id: uuidv4(), name: 'Formatted Date', position: [1980, 220] },
   Data_MSG_1: { id: uuidv4(), name: 'Data MSG-1', position: [2160, 220] },
   MSG_1: { id: uuidv4(), name: 'MSG-1', position: [2340, 220] },
   Get_Not_Bot: { id: uuidv4(), name: 'Get Not Bot', position: [1980, 400] },
