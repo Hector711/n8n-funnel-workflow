@@ -40,17 +40,11 @@ const nodesData = {
   Hours_Remaining: { id: uuidv4(), name: 'Hours Remaining', position: [1800, 580] },
   If_Today: { id: uuidv4(), name: 'If Today', position: [1980, 580] },
   // ──────────── Today ──────────────
-  Formatted_Date_Today: { id: uuidv4(), name: 'Formatted Date Today', position: [2160, 400] },
-  Data_MSG_Today: { id: uuidv4(), name: 'Data MSG-Today', position: [2340, 400] },
-  MSG_Today: { id: uuidv4(), name: 'MSG-Today', position: [2520, 400] },
+  Data_MSG_Today: { id: uuidv4(), name: 'Data MSG-Today', position: [2160, 400] },
+  MSG_Today: { id: uuidv4(), name: 'MSG-Today', position: [2340, 400] },
   // ──────────── NOT Today ──────────────
-  Formatted_Date_Not_Today: {
-    id: uuidv4(),
-    name: 'Formatted Date Not Today',
-    position: [2160, 760],
-  },
-  Data_MSG_Not_Today: { id: uuidv4(), name: 'Data MSG-Not-Today', position: [2340, 760] },
-  MSG_Not_Today: { id: uuidv4(), name: 'MSG-Not-Today', position: [2520, 760] },
+  Data_MSG_Not_Today: { id: uuidv4(), name: 'Data MSG-Not-Today', position: [2160, 760] },
+  MSG_Not_Today: { id: uuidv4(), name: 'MSG-Not-Today', position: [2340, 760] },
 };
 
 const credentials = {
@@ -162,9 +156,34 @@ return [
   },
 ];`,
   Formatted_Date: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];`,
-  Hours_Remaining: `// Fuente: nodo "Session Data"\nconst sessionItems = $items('Session Data');\n\nreturn sessionItems.map(item => {\n\t// Hora de la sesión\n\tconst sessionTimeRaw = item.json.scheduled_event.start_time;\n\tconst sessionTime    = new Date(sessionTimeRaw);\n\n\t// Hora actual (n8n insertará su timestamp en $now)\n\tconst nowDate        = new Date($now);\n\n\t// Diferencia en horas\n\tconst differenceMs   = sessionTime - nowDate;\n\tconst hoursRemaining = Math.floor(differenceMs / (1000 * 60 * 60));\n\n\t// Devolvemos todo el JSON original + los campos calculados\n\treturn {\n\t\tjson: {\n\t\t\t...item.json,             // conserva todas las claves/valores originales\n\t\t\tnow: $now,\n\t\t\tstart_session: sessionTimeRaw,\n\t\t\thours_remaining: hoursRemaining\n\t\t}\n\t};\n});\n`,
-  Formatted_Date_Today: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
-  Formatted_Date_Not_Today: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
+  Hours_Remaining: `const sessionItems = $items('Session Data');
+const opciones = { timeZone: 'Europe/Madrid', hour12: false };
+
+return sessionItems.map(item => {
+  const sessionTimeRaw = item.json.scheduled_event.start_time;
+  const sessionDate = new Date(sessionTimeRaw);
+  const nowDate = new Date($now);
+
+  const differenceMs = sessionDate - nowDate;
+  const hoursRemaining = Math.floor(differenceMs / (1000 * 60 * 60));
+
+  const diaSemana = sessionDate.toLocaleString('es-ES', { ...opciones, weekday: 'long' });
+  const diaMes = sessionDate.toLocaleString('es-ES', { ...opciones, day: 'numeric' });
+  const hora = sessionDate.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });
+  const minutos = sessionDate.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0');
+
+  const fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;
+
+  return {
+    json: {
+      ...item.json,
+      now: $now,
+      start_session: sessionTimeRaw,
+      hours_remaining: hoursRemaining,
+      fechaFormateada: fechaFormateada
+    }
+  };
+});`,
 };
 
 const texts = {
@@ -954,16 +973,6 @@ const nodes = [
     },
   },
   {
-    id: nodesData.Formatted_Date_Today.id,
-    name: nodesData.Formatted_Date_Today.name,
-    type: 'n8n-nodes-base.code',
-    typeVersion: 2,
-    position: nodesData.Formatted_Date_Today.position,
-    parameters: {
-      jsCode: jsCode.Formatted_Date_Today,
-    },
-  },
-  {
     id: nodesData.Data_MSG_Today.id,
     name: nodesData.Data_MSG_Today.name,
     type: 'n8n-nodes-base.set',
@@ -1060,16 +1069,6 @@ const nodes = [
         convertFieldsToString: true,
       },
       options: { waitForSubWorkflow: false },
-    },
-  },
-  {
-    id: nodesData.Formatted_Date_Not_Today.id,
-    name: nodesData.Formatted_Date_Not_Today.name,
-    type: 'n8n-nodes-base.code',
-    typeVersion: 2,
-    position: nodesData.Formatted_Date_Not_Today.position,
-    parameters: {
-      jsCode: jsCode.Formatted_Date_Not_Today,
     },
   },
   {
@@ -1243,18 +1242,12 @@ const connections = {
   },
   'If Today': {
     main: [
-      [{ node: nodesData.Formatted_Date_Today.name, type: 'main', index: 0 }],
-      [{ node: nodesData.Formatted_Date_Not_Today.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Data_MSG_Today.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Data_MSG_Not_Today.name, type: 'main', index: 0 }],
     ],
-  },
-  'Formatted Date Today': {
-    main: [[{ node: nodesData.Data_MSG_Today.name, type: 'main', index: 0 }]],
   },
   'Data MSG-Today': {
     main: [[{ node: nodesData.MSG_Today.name, type: 'main', index: 0 }]],
-  },
-  'Formatted Date Not Today': {
-    main: [[{ node: nodesData.Data_MSG_Not_Today.name, type: 'main', index: 0 }]],
   },
   'Data MSG-Not-Today': {
     main: [[{ node: nodesData.MSG_Not_Today.name, type: 'main', index: 0 }]],
