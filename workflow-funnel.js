@@ -859,4 +859,4 @@ const workflow = {
   },
 };
 
-return [{ json: workflow }];
+return [{ json: workflow }]
