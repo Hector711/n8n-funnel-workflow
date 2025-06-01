@@ -1,0 +1,47 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Archivos de entorno
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Directorios de caché
+.cache/
+.npm/
+.eslintcache
+.stylelintcache
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Directorios de cobertura
+coverage/
+
+# Directorios de build
+dist/
+build/
+out/
+
+# Archivos de IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Archivos temporales
+*.swp
+*.swo
+*~ 

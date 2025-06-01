@@ -1,12 +1,12 @@
 function uuidv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
 
-const expr = (inner) => '=' + '{' + '{ ' + inner + ' }}';
+const expr = inner => '=' + '{' + '{ ' + inner + ' }}';
 
 const workflowDataInput = $('Workflow Data').first().json;
 const projectNameSlug = workflowDataInput.workflow_name.trim().toLowerCase().replace(/\s+/g, '-');
@@ -24,8 +24,8 @@ const nodesData = {
   Create_Lead: { id: uuidv4(), name: 'Create Lead', position: [1260, 220] },
   Form: { id: uuidv4(), name: 'Form', position: [1620, 220] },
   If_Bot_Create: { id: uuidv4(), name: 'If Bot Create', position: [1800, 220] },
-  Formated_Date: { id: uuidv4(), name: 'Formated Date', position: [1980, 220] },
-  Data_MSG_1: { id: uuidv4(), name: 'Data MSG-1', position: [2160, 220] },  
+  Formatted_Date: { id: uuidv4(), name: 'Formatted Date', position: [1980, 220] },
+  Data_MSG_1: { id: uuidv4(), name: 'Data MSG-1', position: [2160, 220] },
   MSG_1: { id: uuidv4(), name: 'MSG-1', position: [2340, 220] },
   Get_Not_Bot: { id: uuidv4(), name: 'Get Not Bot', position: [1980, 400] },
   Data_MSG_S: { id: uuidv4(), name: 'Data MSG-S', position: [2160, 400] },
@@ -40,20 +40,24 @@ const nodesData = {
   Hours_Remaining: { id: uuidv4(), name: 'Hours Remaining', position: [1620, 760] },
   If_Today: { id: uuidv4(), name: 'If Today', position: [1800, 760] },
   // ──────────── Today ──────────────
-  Formated_Date_Today: { id: uuidv4(), name: 'Formated Date A', position: [1980, 580] },
+  Formatted_Date_Today: { id: uuidv4(), name: 'Formatted Date Today', position: [1980, 580] },
   Data_MSG_Today: { id: uuidv4(), name: 'Data MSG-Today', position: [2160, 580] },
   MSG_Today: { id: uuidv4(), name: 'MSG-Today', position: [2160, 1000] },
   // ──────────── NOT Today ──────────────
-  Formated_Date_Not_Today: { id: uuidv4(), name: 'Formated Date B', position: [1980, 1000] },
+  Formatted_Date_Not_Today: {
+    id: uuidv4(),
+    name: 'Formatted Date Not Today',
+    position: [1980, 1000],
+  },
   Data_MSG_Not_Today: { id: uuidv4(), name: 'Data MSG-Not-Today', position: [2160, 1000] },
   MSG_Not_Today: { id: uuidv4(), name: 'MSG-Not-Today', position: [2340, 1000] },
 };
 
 const credentials = {
   notion: {
-    pbs: '0vm51DaWqWGwtW9q'
-  }
-}
+    pbs: '0vm51DaWqWGwtW9q',
+  },
+};
 
 const jsCode = {
   Session_Data: `// ──────────────────────────
@@ -157,73 +161,127 @@ return [
     },
   },
 ];`,
-  Formated_Date: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];`,
+  Formatted_Date: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];`,
   Hours_Remaining: `// Fuente: nodo "Session Data"\nconst sessionItems = $items('Session Data');\n\nreturn sessionItems.map(item => {\n\t// Hora de la sesión\n\tconst sessionTimeRaw = item.json.scheduled_event.start_time;\n\tconst sessionTime    = new Date(sessionTimeRaw);\n\n\t// Hora actual (n8n insertará su timestamp en $now)\n\tconst nowDate        = new Date($now);\n\n\t// Diferencia en horas\n\tconst differenceMs   = sessionTime - nowDate;\n\tconst hoursRemaining = Math.floor(differenceMs / (1000 * 60 * 60));\n\n\t// Devolvemos todo el JSON original + los campos calculados\n\treturn {\n\t\tjson: {\n\t\t\t...item.json,             // conserva todas las claves/valores originales\n\t\t\tnow: $now,\n\t\t\tstart_session: sessionTimeRaw,\n\t\t\thours_remaining: hoursRemaining\n\t\t}\n\t};\n});\n`,
   If: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
-  Formated_Date_Today: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
-  Formated_Date_Not_Today: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
-}
+  Formatted_Date_Today: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
+  Formatted_Date_Not_Today: `const session_date = $node["Session Data"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = \`el \${diaSemana} \${diaMes} a las \${hora}:\${minutos}\`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n`,
+};
 
 const texts = {
   MSG_1: `=¡Hola {{ $node['Session Data'].json.user_info.name }}! 👋\n\nEncantado de saludarte, te escribo por la llamada que tienes agendada conmigo.\n\nPronto te contactaré para confirmar algunos detalles importantes. Es fundamental que podamos hablar para dejar todo listo para tu sesión.\n\nPor favor, mantente atent@ a tu teléfono 📞\n\n⚠️ Si no logramos contactar en las próximas 24 horas, cancelaremos la llamada.`,
-}
+};
 
 const nodes = [
   {
     parameters: { httpMethod: 'POST', path: projectNameSlug, options: {} },
-    type: 'n8n-nodes-base.webhook', typeVersion: 2,
-    position: nodesData.Webhook.position, id: nodesData.Webhook.id, name: nodesData.Webhook.name, webhookId: uuidv4()
+    type: 'n8n-nodes-base.webhook',
+    typeVersion: 2,
+    position: nodesData.Webhook.position,
+    id: nodesData.Webhook.id,
+    name: nodesData.Webhook.name,
+    webhookId: uuidv4(),
   },
   {
     parameters: {
       assignments: {
-        assignments: [{ id: uuidv4(), name: 'project_id', value: projectPageID, type: 'string' }]
-      }, options: {}
+        assignments: [{ id: uuidv4(), name: 'project_id', value: projectPageID, type: 'string' }],
+      },
+      options: {},
     },
-    type: 'n8n-nodes-base.set', typeVersion: 3.4,
-    position: nodesData.ID_Project.position, notesInFlow: true, id: nodesData.ID_Project.id, name: nodesData.ID_Project.name
+    type: 'n8n-nodes-base.set',
+    typeVersion: 3.4,
+    position: nodesData.ID_Project.position,
+    notesInFlow: true,
+    id: nodesData.ID_Project.id,
+    name: nodesData.ID_Project.name,
   },
   {
     parameters: {
-      resource: 'databasePage', operation: 'get',
-      pageId: { __rl: true, value: expr('$json.project_id'), mode: 'id' }
+      resource: 'databasePage',
+      operation: 'get',
+      pageId: { __rl: true, value: expr('$json.project_id'), mode: 'id' },
     },
-    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: nodesData.Get_Project.position, notesInFlow: true, id: nodesData.Get_Project.id, name: nodesData.Get_Project.name,
-    credentials: { notionApi: { id: credentials.notion.pbs } }
+    type: 'n8n-nodes-base.notion',
+    typeVersion: 2.2,
+    position: nodesData.Get_Project.position,
+    notesInFlow: true,
+    id: nodesData.Get_Project.id,
+    name: nodesData.Get_Project.name,
+    credentials: { notionApi: { id: credentials.notion.pbs } },
   },
   {
     parameters: {
-      resource: 'databasePage', operation: 'get',
-      pageId: { __rl: true, value: expr('$json.property_bot[0] || ""'), mode: 'id' }
+      resource: 'databasePage',
+      operation: 'get',
+      pageId: { __rl: true, value: expr('$json.property_bot[0] || ""'), mode: 'id' },
     },
-    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: nodesData.Get_Bot.position, notesInFlow: true, id: nodesData.Get_Bot.id, name: nodesData.Get_Bot.name,
+    type: 'n8n-nodes-base.notion',
+    typeVersion: 2.2,
+    position: nodesData.Get_Bot.position,
+    notesInFlow: true,
+    id: nodesData.Get_Bot.id,
+    name: nodesData.Get_Bot.name,
     alwaysOutputData: true,
     onError: 'continue',
-    credentials: { notionApi: { id: credentials.notion.pbs } }
+    credentials: { notionApi: { id: credentials.notion.pbs } },
   },
   {
     parameters: {
       assignments: {
         assignments: [
-          { id: uuidv4(), name: 'evo_url', value: expr(`$node["Get Bot"].item.json.property_server_url || null`), type: 'string' },
-          { id: uuidv4(), name: 'evo_apikey', value: expr(`$node["Get Bot"].item.json.property_api_key || null`), type: 'string' },
-          { id: uuidv4(), name: 'bot_id', value: expr(`$node["Get Bot"].item.json.property_bot_id || null`), type: 'string' },
-          { id: uuidv4(), name: 'db_id', value: expr(`$node["Get Project"].item.json.property_crm_db.split('/') [3].split('?')[0]`), type: 'string' },
-          { id: uuidv4(), name: 'client_whatsapp', value: expr(`$node["Get Project"].item.json.property_notificaciones`), type: 'string' }
-        ]
-      }, options: {}
+          {
+            id: uuidv4(),
+            name: 'evo_url',
+            value: expr(`$node["Get Bot"].item.json.property_server_url || null`),
+            type: 'string',
+          },
+          {
+            id: uuidv4(),
+            name: 'evo_apikey',
+            value: expr(`$node["Get Bot"].item.json.property_api_key || null`),
+            type: 'string',
+          },
+          {
+            id: uuidv4(),
+            name: 'bot_id',
+            value: expr(`$node["Get Bot"].item.json.property_bot_id || null`),
+            type: 'string',
+          },
+          {
+            id: uuidv4(),
+            name: 'db_id',
+            value: expr(
+              `$node["Get Project"].item.json.property_crm_db.split('/') [3].split('?')[0]`
+            ),
+            type: 'string',
+          },
+          {
+            id: uuidv4(),
+            name: 'client_whatsapp',
+            value: expr(`$node["Get Project"].item.json.property_notificaciones`),
+            type: 'string',
+          },
+        ],
+      },
+      options: {},
     },
-    type: 'n8n-nodes-base.set', typeVersion: 3.4,
-    position: nodesData.ENV.position, id: nodesData.ENV.id, name: nodesData.ENV.name
+    type: 'n8n-nodes-base.set',
+    typeVersion: 3.4,
+    position: nodesData.ENV.position,
+    id: nodesData.ENV.id,
+    name: nodesData.ENV.name,
   },
   {
     parameters: {
-      jsCode: jsCode.Session_Data
+      jsCode: jsCode.Session_Data,
     },
-    id: nodesData.Session_Data.id, name: nodesData.Session_Data.name,
-    type: 'n8n-nodes-base.code', typeVersion: 2, position: nodesData.Session_Data.position, notesInFlow: true
+    id: nodesData.Session_Data.id,
+    name: nodesData.Session_Data.name,
+    type: 'n8n-nodes-base.code',
+    typeVersion: 2,
+    position: nodesData.Session_Data.position,
+    notesInFlow: true,
   },
   {
     parameters: {
@@ -231,27 +289,59 @@ const nodes = [
         values: [
           {
             conditions: {
-              combinator: 'and', options: { caseSensitive: true },
-              conditions: [{ leftValue: expr('$node["Session Data"].json.event'), rightValue: 'BOOKING_CREATED', operator: { type: 'string', operation: 'equals' } }]
-            }, renameOutput: true, outputKey: 'CREATE'
+              combinator: 'and',
+              options: { caseSensitive: true },
+              conditions: [
+                {
+                  leftValue: expr('$node["Session Data"].json.event'),
+                  rightValue: 'BOOKING_CREATED',
+                  operator: { type: 'string', operation: 'equals' },
+                },
+              ],
+            },
+            renameOutput: true,
+            outputKey: 'CREATE',
           },
           {
             conditions: {
-              combinator: 'and', options: { caseSensitive: true },
-              conditions: [{ leftValue: expr('$node["Session Data"].json.event'), rightValue: 'BOOKING_CANCELLED', operator: { type: 'string', operation: 'equals' } }]
-            }, renameOutput: true, outputKey: 'CANCEL'
+              combinator: 'and',
+              options: { caseSensitive: true },
+              conditions: [
+                {
+                  leftValue: expr('$node["Session Data"].json.event'),
+                  rightValue: 'BOOKING_CANCELLED',
+                  operator: { type: 'string', operation: 'equals' },
+                },
+              ],
+            },
+            renameOutput: true,
+            outputKey: 'CANCEL',
           },
           {
             conditions: {
-              combinator: 'and', options: { caseSensitive: true },
-              conditions: [{ leftValue: expr('$node["Session Data"].json.event'), rightValue: 'BOOKING_RESCHEDULED', operator: { type: 'string', operation: 'equals' } }]
-            }, renameOutput: true, outputKey: 'RESCHEDULED'
-          }
-        ]
-      }, options: {}
+              combinator: 'and',
+              options: { caseSensitive: true },
+              conditions: [
+                {
+                  leftValue: expr('$node["Session Data"].json.event'),
+                  rightValue: 'BOOKING_RESCHEDULED',
+                  operator: { type: 'string', operation: 'equals' },
+                },
+              ],
+            },
+            renameOutput: true,
+            outputKey: 'RESCHEDULED',
+          },
+        ],
+      },
+      options: {},
     },
-    type: 'n8n-nodes-base.switch', typeVersion: 3,
-    position: nodesData.Event_Type.position, id: nodesData.Event_Type.id, name: nodesData.Event_Type.name, notesInFlow: true
+    type: 'n8n-nodes-base.switch',
+    typeVersion: 3,
+    position: nodesData.Event_Type.position,
+    id: nodesData.Event_Type.id,
+    name: nodesData.Event_Type.name,
+    notesInFlow: true,
   },
   {
     parameters: {
@@ -262,80 +352,141 @@ const nodes = [
         propertyValues: [
           { key: '=Nombre|title', title: expr('$node["Session Data"].json.user_info.full_name') },
           { key: '=Email|email', emailValue: expr('$node["Session Data"].json.user_info.email') },
-          { key: '=WhatsApp|url', urlValue: expr('"https://wa.me/" + $node["Session Data"].json.user_info.telephone') },
-          { key: '=Fecha Llamada|date', date: expr('$node["Session Data"].json.scheduled_event.start_time'), timezone: expr('$node["Session Data"].json.scheduled_event.timezone') },
+          {
+            key: '=WhatsApp|url',
+            urlValue: expr('"https://wa.me/" + $node["Session Data"].json.user_info.telephone'),
+          },
+          {
+            key: '=Fecha Llamada|date',
+            date: expr('$node["Session Data"].json.scheduled_event.start_time'),
+            timezone: expr('$node["Session Data"].json.scheduled_event.timezone'),
+          },
           { key: '=Event ID|rich_text', textContent: expr('$node["Session Data"].json.event_id') },
-          { key: '=Link Acceso|url', urlValue: expr('$node["Session Data"].json.scheduled_event.join_url') },
-          { key: '=Link Cancelación|url', urlValue: expr('$node["Session Data"].json.scheduled_event.cancel_url') },
-          { key: '=Teléfono|phone_number', phoneValue: expr('$node["Session Data"].json.user_info.telephone || "0"') }
-        ]
-      }, options: {}
+          {
+            key: '=Link Acceso|url',
+            urlValue: expr('$node["Session Data"].json.scheduled_event.join_url'),
+          },
+          {
+            key: '=Link Cancelación|url',
+            urlValue: expr('$node["Session Data"].json.scheduled_event.cancel_url'),
+          },
+          {
+            key: '=Teléfono|phone_number',
+            phoneValue: expr('$node["Session Data"].json.user_info.telephone || "0"'),
+          },
+        ],
+      },
+      options: {},
     },
-    id: nodesData.Create_Lead.id, name: nodesData.Create_Lead.name,
-    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: [1260, 220], notesInFlow: true,
-    credentials: { notionApi: { id: credentials.notion.pbs } }
+    id: nodesData.Create_Lead.id,
+    name: nodesData.Create_Lead.name,
+    type: 'n8n-nodes-base.notion',
+    typeVersion: 2.2,
+    position: [1260, 220],
+    notesInFlow: true,
+    credentials: { notionApi: { id: credentials.notion.pbs } },
   },
   {
     parameters: {
-      resource: 'databasePage', operation: 'getAll',
+      resource: 'databasePage',
+      operation: 'getAll',
       databaseId: { __rl: true, value: expr('$("ENV").item.json.db_id'), mode: 'id' },
-      returnAll: true, filterType: 'manual', matchType: 'allFilters', simple: false,
+      returnAll: true,
+      filterType: 'manual',
+      matchType: 'allFilters',
+      simple: false,
       filters: {
         conditions: [
-          { key: '=Event ID|rich_text', condition: 'equals', richTextValue: expr('$node["Session Data"].json.event_id') }
-        ]
-      }, options: {}
+          {
+            key: '=Event ID|rich_text',
+            condition: 'equals',
+            richTextValue: expr('$node["Session Data"].json.event_id'),
+          },
+        ],
+      },
+      options: {},
     },
-    id: nodesData.Get_Lead_Cancel.id, name: nodesData.Get_Lead_Cancel.name,
-    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: [1260, 400], alwaysOutputData: true, notesInFlow: true,
-    credentials: { notionApi: { id: credentials.notion.pbs } }
+    id: nodesData.Get_Lead_Cancel.id,
+    name: nodesData.Get_Lead_Cancel.name,
+    type: 'n8n-nodes-base.notion',
+    typeVersion: 2.2,
+    position: [1260, 400],
+    alwaysOutputData: true,
+    notesInFlow: true,
+    credentials: { notionApi: { id: credentials.notion.pbs } },
   },
   {
     parameters: {
-      resource: 'databasePage', operation: 'getAll',
+      resource: 'databasePage',
+      operation: 'getAll',
       databaseId: { __rl: true, value: expr('$("ENV").item.json.db_id'), mode: 'id' },
-      returnAll: true, filterType: 'manual', simple: false,
+      returnAll: true,
+      filterType: 'manual',
+      simple: false,
       filters: {
         conditions: [
-          { key: 'Email|email', condition: 'equals', emailValue: expr('$node["Session Data"].json.user_info.email') }
-        ]
-      }, options: {}
+          {
+            key: 'Email|email',
+            condition: 'equals',
+            emailValue: expr('$node["Session Data"].json.user_info.email'),
+          },
+        ],
+      },
+      options: {},
     },
-    id: nodesData.Get_Lead_Reschedule.id, name: nodesData.Get_Lead_Reschedule.name,
-    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: nodesData.Get_Lead_Reschedule.position, alwaysOutputData: true, notesInFlow: true,
-    credentials: { notionApi: { id: credentials.notion.pbs } }
+    id: nodesData.Get_Lead_Reschedule.id,
+    name: nodesData.Get_Lead_Reschedule.name,
+    type: 'n8n-nodes-base.notion',
+    typeVersion: 2.2,
+    position: nodesData.Get_Lead_Reschedule.position,
+    alwaysOutputData: true,
+    notesInFlow: true,
+    credentials: { notionApi: { id: credentials.notion.pbs } },
   },
   {
     parameters: {
-      resource: 'databasePage', operation: 'update',
+      resource: 'databasePage',
+      operation: 'update',
       pageId: { __rl: true, value: expr('$node["Get Lead Cancel"].json.id'), mode: 'id' },
       propertiesUi: { propertyValues: [{ key: '=Estado|status', statusValue: '=Cancelado' }] },
-      options: {}
+      options: {},
     },
-    id: nodesData.Cancel.id, name: nodesData.Cancel.name,
-    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: nodesData.Cancel.position, notesInFlow: true,
-    credentials: { notionApi: { id: credentials.notion.pbs } }
+    id: nodesData.Cancel.id,
+    name: nodesData.Cancel.name,
+    type: 'n8n-nodes-base.notion',
+    typeVersion: 2.2,
+    position: nodesData.Cancel.position,
+    notesInFlow: true,
+    credentials: { notionApi: { id: credentials.notion.pbs } },
   },
   {
     parameters: {
-      resource: 'databasePage', operation: 'update',
+      resource: 'databasePage',
+      operation: 'update',
       pageId: { __rl: true, value: expr('$node["Get Lead Reschedule"].json.id'), mode: 'id' },
       propertiesUi: {
         propertyValues: [
-          { key: '=Fecha Llamada|date', date: expr('$node["Session Data"].json.scheduled_event.start_time'), timezone: expr('$node["Session Data"].json.scheduled_event.timezone') },
+          {
+            key: '=Fecha Llamada|date',
+            date: expr('$node["Session Data"].json.scheduled_event.start_time'),
+            timezone: expr('$node["Session Data"].json.scheduled_event.timezone'),
+          },
           { key: '=Event ID|rich_text', textContent: expr('$node["Session Data"].json.event_id') },
-          { key: '=Link Cancelación|url', urlValue: expr('$node["Session Data"].json.scheduled_event.cancel_url') }
-        ]
-      }, options: {}
+          {
+            key: '=Link Cancelación|url',
+            urlValue: expr('$node["Session Data"].json.scheduled_event.cancel_url'),
+          },
+        ],
+      },
+      options: {},
     },
-    id: nodesData.Reschedule.id, name: nodesData.Reschedule.name,
-    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: nodesData.Reschedule.position, notesInFlow: true,
-    credentials: { notionApi: { id: credentials.notion.pbs } }
+    id: nodesData.Reschedule.id,
+    name: nodesData.Reschedule.name,
+    type: 'n8n-nodes-base.notion',
+    typeVersion: 2.2,
+    position: nodesData.Reschedule.position,
+    notesInFlow: true,
+    credentials: { notionApi: { id: credentials.notion.pbs } },
   },
   {
     parameters: {
@@ -345,7 +496,7 @@ const nodes = [
         blockValues: [
           {
             type: 'heading_2',
-            textContent: 'Formulario Cualificación'
+            textContent: 'Formulario Cualificación',
           },
           {
             richText: true,
@@ -353,135 +504,170 @@ const nodes = [
               text: [
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[0]?.question ? "Pregunta 1: " : "" }}',
-                  annotationUi: { bold: true, color: 'blue' }
+                  annotationUi: { bold: true, color: 'blue' },
                 },
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[0]?.question || "" }}',
-                  annotationUi: { italic: true, color: 'gray' }
-                }
-              ]
-            }
+                  annotationUi: { italic: true, color: 'gray' },
+                },
+              ],
+            },
           },
-          { type: 'bulleted_list_item', textContent: '= {{ $("Session Data").item.json.questions_and_answers[0]?.answer || " " }}' },
+          {
+            type: 'bulleted_list_item',
+            textContent:
+              '= {{ $("Session Data").item.json.questions_and_answers[0]?.answer || " " }}',
+          },
           {
             richText: true,
             text: {
               text: [
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[1]?.question ? "Pregunta 2: " : "" }}',
-                  annotationUi: { bold: true, color: 'blue' }
+                  annotationUi: { bold: true, color: 'blue' },
                 },
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[1]?.question || "" }}',
-                  annotationUi: { italic: true, color: 'gray' }
-                }
-              ]
-            }
+                  annotationUi: { italic: true, color: 'gray' },
+                },
+              ],
+            },
           },
-          { type: 'bulleted_list_item', textContent: '= {{ $("Session Data").item.json.questions_and_answers[1]?.answer || " " }}' },
+          {
+            type: 'bulleted_list_item',
+            textContent:
+              '= {{ $("Session Data").item.json.questions_and_answers[1]?.answer || " " }}',
+          },
           {
             richText: true,
             text: {
               text: [
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[2]?.question ? "Pregunta 3: " : "" }}',
-                  annotationUi: { bold: true, color: 'blue' }
+                  annotationUi: { bold: true, color: 'blue' },
                 },
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[2]?.question || "" }}',
-                  annotationUi: { italic: true, color: 'gray' }
-                }
-              ]
-            }
+                  annotationUi: { italic: true, color: 'gray' },
+                },
+              ],
+            },
           },
-          { type: 'bulleted_list_item', textContent: '= {{ $("Session Data").item.json.questions_and_answers[2]?.answer || " " }}' },
+          {
+            type: 'bulleted_list_item',
+            textContent:
+              '= {{ $("Session Data").item.json.questions_and_answers[2]?.answer || " " }}',
+          },
           {
             richText: true,
             text: {
               text: [
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[3]?.question ? "Pregunta 4: " : "" }}',
-                  annotationUi: { bold: true, color: 'blue' }
+                  annotationUi: { bold: true, color: 'blue' },
                 },
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[3]?.question || "" }}',
-                  annotationUi: { italic: true, color: 'gray' }
-                }
-              ]
-            }
+                  annotationUi: { italic: true, color: 'gray' },
+                },
+              ],
+            },
           },
-          { type: 'bulleted_list_item', textContent: '= {{ $("Session Data").item.json.questions_and_answers[3]?.answer || " " }}' },
+          {
+            type: 'bulleted_list_item',
+            textContent:
+              '= {{ $("Session Data").item.json.questions_and_answers[3]?.answer || " " }}',
+          },
           {
             richText: true,
             text: {
               text: [
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[4]?.question ? "Pregunta 5: " : "" }}',
-                  annotationUi: { bold: true, color: 'blue' }
+                  annotationUi: { bold: true, color: 'blue' },
                 },
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[4]?.question || "" }}',
-                  annotationUi: { italic: true, color: 'gray' }
-                }
-              ]
-            }
+                  annotationUi: { italic: true, color: 'gray' },
+                },
+              ],
+            },
           },
-          { type: 'bulleted_list_item', textContent: '= {{ $("Session Data").item.json.questions_and_answers[4]?.answer || " " }}' },
+          {
+            type: 'bulleted_list_item',
+            textContent:
+              '= {{ $("Session Data").item.json.questions_and_answers[4]?.answer || " " }}',
+          },
           {
             richText: true,
             text: {
               text: [
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[5]?.question ? "Pregunta 6: " : "" }}',
-                  annotationUi: { bold: true, color: 'blue' }
+                  annotationUi: { bold: true, color: 'blue' },
                 },
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[5]?.question || "" }}',
-                  annotationUi: { italic: true, color: 'gray' }
-                }
-              ]
-            }
+                  annotationUi: { italic: true, color: 'gray' },
+                },
+              ],
+            },
           },
-          { type: 'bulleted_list_item', textContent: '= {{ $("Session Data").item.json.questions_and_answers[5]?.answer || " " }}' },
+          {
+            type: 'bulleted_list_item',
+            textContent:
+              '= {{ $("Session Data").item.json.questions_and_answers[5]?.answer || " " }}',
+          },
           {
             richText: true,
             text: {
               text: [
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[6]?.question ? "Pregunta 7: " : "" }}',
-                  annotationUi: { bold: true, color: 'blue' }
+                  annotationUi: { bold: true, color: 'blue' },
                 },
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[6]?.question || "" }}',
-                  annotationUi: { italic: true, color: 'gray' }
-                }
-              ]
-            }
+                  annotationUi: { italic: true, color: 'gray' },
+                },
+              ],
+            },
           },
-          { type: 'bulleted_list_item', textContent: '= {{ $("Session Data").item.json.questions_and_answers[6]?.answer || " " }}' },
+          {
+            type: 'bulleted_list_item',
+            textContent:
+              '= {{ $("Session Data").item.json.questions_and_answers[6]?.answer || " " }}',
+          },
           {
             richText: true,
             text: {
               text: [
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[7]?.question ? "Pregunta 8: " : "" }}',
-                  annotationUi: { bold: true, color: 'blue' }
+                  annotationUi: { bold: true, color: 'blue' },
                 },
                 {
                   text: '= {{ $("Session Data").item.json.questions_and_answers[7]?.question || "" }}',
-                  annotationUi: { italic: true, color: 'gray' }
-                }
-              ]
-            }
+                  annotationUi: { italic: true, color: 'gray' },
+                },
+              ],
+            },
           },
-          { type: 'bulleted_list_item', textContent: '= {{ $("Session Data").item.json.questions_and_answers[7]?.answer || " " }}' }
-        ]
-      }
+          {
+            type: 'bulleted_list_item',
+            textContent:
+              '= {{ $("Session Data").item.json.questions_and_answers[7]?.answer || " " }}',
+          },
+        ],
+      },
     },
-    id: nodesData.Form.id, name: nodesData.Form.name,
-    type: 'n8n-nodes-base.notion', typeVersion: 2.2,
-    position: nodesData.Form.position, notesInFlow: true,
-    credentials: { notionApi: { id: credentials.notion.pbs } }
+    id: nodesData.Form.id,
+    name: nodesData.Form.name,
+    type: 'n8n-nodes-base.notion',
+    typeVersion: 2.2,
+    position: nodesData.Form.position,
+    notesInFlow: true,
+    credentials: { notionApi: { id: credentials.notion.pbs } },
   },
   {
     parameters: {
@@ -490,62 +676,96 @@ const nodes = [
           caseSensitive: true,
           leftValue: '',
           typeValidation: 'strict',
-          version: 2
+          version: 2,
         },
         conditions: [
           {
-            leftValue: '={{ $node[\'ENV\'].json.bot_id }}',
+            leftValue: "={{ $node['ENV'].json.bot_id }}",
             rightValue: '',
             operator: {
               type: 'string',
               operation: 'notEmpty',
-              singleValue: true
-            }
-          }
+              singleValue: true,
+            },
+          },
         ],
-        combinator: 'and'
+        combinator: 'and',
       },
-      options: {}
+      options: {},
     },
-    type: 'n8n-nodes-base.if', typeVersion: 2.2,
-    position: nodesData.If_Bot_Create.position, id: nodesData.If_Bot_Create.id, name: nodesData.If_Bot_Create.name
+    type: 'n8n-nodes-base.if',
+    typeVersion: 2.2,
+    position: nodesData.If_Bot_Create.position,
+    id: nodesData.If_Bot_Create.id,
+    name: nodesData.If_Bot_Create.name,
   },
   {
     parameters: {
-      jsCode: jsCode.Formated_Date
+      jsCode: jsCode.Formatted_Date,
     },
     type: 'n8n-nodes-base.code',
     typeVersion: 2,
-    position: nodesData.Formated_Date.position,
-    id: nodesData.Formated_Date.id,
-    name: 'Formated Date'
+    position: nodesData.Formatted_Date.position,
+    id: nodesData.Formatted_Date.id,
+    name: 'Formatted Date',
   },
   {
     parameters: {
       assignments: {
         assignments: [
           { id: uuidv4(), name: 'workflowName', value: expr('$workflow.name'), type: 'string' },
-          { id: uuidv4(), name: 'apiKey', value: expr('$node["ENV"].json.evo_apikey'), type: 'string' },
-          { id: uuidv4(), name: 'botURL', value: '=https://{{ $node[\'ENV\'].json.evo_url }}/message/sendText/{{ $node[\'ENV\'].json.bot_id }}', type: 'string' },
+          {
+            id: uuidv4(),
+            name: 'apiKey',
+            value: expr('$node["ENV"].json.evo_apikey'),
+            type: 'string',
+          },
+          {
+            id: uuidv4(),
+            name: 'botURL',
+            value:
+              "=https://{{ $node['ENV'].json.evo_url }}/message/sendText/{{ $node['ENV'].json.bot_id }}",
+            type: 'string',
+          },
           { id: uuidv4(), name: 'messageType', value: 'MSG-1_A', type: 'string' },
-          { id: uuidv4(), name: 'sessionDate', value: expr('$node["Session Data"].item.json.scheduled_event.start_time'), type: 'string' },
-          { id: uuidv4(), name: 'number', value: expr('$node["Session Data"].item.json.user_info.telephone'), type: 'string' },
+          {
+            id: uuidv4(),
+            name: 'sessionDate',
+            value: expr('$node["Session Data"].item.json.scheduled_event.start_time'),
+            type: 'string',
+          },
+          {
+            id: uuidv4(),
+            name: 'number',
+            value: expr('$node["Session Data"].item.json.user_info.telephone'),
+            type: 'string',
+          },
           { id: uuidv4(), name: 'text', value: texts.MSG_1, type: 'string' },
-          { id: uuidv4(), name: 'pageID', value: expr('$node["Create Lead"].item.json.id'), type: 'string' }
-        ]
+          {
+            id: uuidv4(),
+            name: 'pageID',
+            value: expr('$node["Create Lead"].item.json.id'),
+            type: 'string',
+          },
+        ],
       },
-      options: {}
+      options: {},
     },
     type: 'n8n-nodes-base.set',
     typeVersion: 3.4,
     position: nodesData.Data_MSG_1.position,
     id: nodesData.Data_MSG_1.id,
     name: nodesData.Data_MSG_1.name,
-    notesInFlow: true
+    notesInFlow: true,
   },
   {
     parameters: {
-      workflowId: { __rl: true, value: 'NFfhN6ZIxkpBW3Ph', mode: 'list', cachedResultName: 'MSG General EvolutionApi' },
+      workflowId: {
+        __rl: true,
+        value: 'NFfhN6ZIxkpBW3Ph',
+        mode: 'list',
+        cachedResultName: 'MSG General EvolutionApi',
+      },
       workflowInputs: {
         mappingMode: 'defineBelow',
         value: {
@@ -556,31 +776,39 @@ const nodes = [
           sessionDate: expr('$json.sessionDate'),
           botURL: expr('$json.botURL'),
           apiKey: expr('$json.apiKey'),
-          text: expr('$json.text')
+          text: expr('$json.text'),
         },
         matchingColumns: [],
         schema: [],
         attemptToConvertTypes: false,
-        convertFieldsToString: true
+        convertFieldsToString: true,
       },
-      options: { waitForSubWorkflow: false }
+      options: { waitForSubWorkflow: false },
     },
     type: 'n8n-nodes-base.executeWorkflow',
     typeVersion: 1.2,
     position: nodesData.MSG_1.position,
     id: nodesData.MSG_1.id,
     name: nodesData.MSG_1.name,
-    notesInFlow: true
+    notesInFlow: true,
   },
   {
     parameters: {
       resource: 'databasePage',
       operation: 'getAll',
-      databaseId: { __rl: true, value: '1b1ea5f7-2f4a-8039-97a0-e27d8aeb1d86', mode: 'list', cachedResultName: 'Bots', cachedResultUrl: 'https://www.notion.so/1b1ea5f72f4a803997a0e27d8aeb1d86' },
+      databaseId: {
+        __rl: true,
+        value: '1b1ea5f7-2f4a-8039-97a0-e27d8aeb1d86',
+        mode: 'list',
+        cachedResultName: 'Bots',
+        cachedResultUrl: 'https://www.notion.so/1b1ea5f72f4a803997a0e27d8aeb1d86',
+      },
       limit: 1,
       filterType: 'manual',
-      filters: { conditions: [{ key: 'Notificaciones|checkbox', condition: 'equals', checkboxValue: true }] },
-      options: {}
+      filters: {
+        conditions: [{ key: 'Notificaciones|checkbox', condition: 'equals', checkboxValue: true }],
+      },
+      options: {},
     },
     type: 'n8n-nodes-base.notion',
     typeVersion: 2.2,
@@ -588,23 +816,39 @@ const nodes = [
     id: nodesData.Get_Not_Bot.id,
     name: nodesData.Get_Not_Bot.name,
     notesInFlow: true,
-    credentials: { notionApi: { id: '0vm51DaWqWGwtW9q' } }
+    credentials: { notionApi: { id: '0vm51DaWqWGwtW9q' } },
   },
   {
     parameters: {
       assignments: {
         assignments: [
           { id: uuidv4(), name: 'workflowName', value: expr('$workflow.name'), type: 'string' },
-          { id: uuidv4(), name: 'apiKey', value: expr('$node["Get Not Bot"].json.property_api_key'), type: 'string' },
-          { id: uuidv4(), name: 'botURL', value: '=https://{{ $node[\'Get Not Bot\'].json.property_server_url }}/message/sendText/{{ $node[\'Get Not Bot\'].json.property_bot_id }}', type: 'string' },
+          {
+            id: uuidv4(),
+            name: 'apiKey',
+            value: expr('$node["Get Not Bot"].json.property_api_key'),
+            type: 'string',
+          },
+          {
+            id: uuidv4(),
+            name: 'botURL',
+            value:
+              "=https://{{ $node['Get Not Bot'].json.property_server_url }}/message/sendText/{{ $node['Get Not Bot'].json.property_bot_id }}",
+            type: 'string',
+          },
           { id: uuidv4(), name: 'messageType', value: 'MSG-S', type: 'string' },
           { id: uuidv4(), name: 'sessionDate', value: '', type: 'string' },
-          { id: uuidv4(), name: 'number', value: expr('$node["ENV"].item.json.client_whatsapp'), type: 'string' },
+          {
+            id: uuidv4(),
+            name: 'number',
+            value: expr('$node["ENV"].item.json.client_whatsapp'),
+            type: 'string',
+          },
           { id: uuidv4(), name: 'text', value: '🤖: Ha entrado un nuevo lead!', type: 'string' },
-          { id: uuidv4(), name: 'pageID', value: '', type: 'string' }
-        ]
+          { id: uuidv4(), name: 'pageID', value: '', type: 'string' },
+        ],
       },
-      options: {}
+      options: {},
     },
     type: 'n8n-nodes-base.set',
     typeVersion: 3.4,
@@ -612,11 +856,16 @@ const nodes = [
     id: nodesData.Data_MSG_S.id,
     name: nodesData.Data_MSG_S.name,
     notesInFlow: true,
-    executeOnce: true
+    executeOnce: true,
   },
   {
     parameters: {
-      workflowId: { __rl: true, value: 'NFfhN6ZIxkpBW3Ph', mode: 'list', cachedResultName: 'MSG General EvolutionApi' },
+      workflowId: {
+        __rl: true,
+        value: 'NFfhN6ZIxkpBW3Ph',
+        mode: 'list',
+        cachedResultName: 'MSG General EvolutionApi',
+      },
       workflowInputs: {
         mappingMode: 'defineBelow',
         value: {
@@ -627,21 +876,21 @@ const nodes = [
           sessionDate: expr('$json.sessionDate'),
           botURL: expr('$json.botURL'),
           apiKey: expr('$json.apiKey'),
-          text: expr('$json.text')
+          text: expr('$json.text'),
         },
         matchingColumns: [],
         schema: [],
         attemptToConvertTypes: false,
-        convertFieldsToString: true
+        convertFieldsToString: true,
       },
-      options: { waitForSubWorkflow: false }
+      options: { waitForSubWorkflow: false },
     },
     type: 'n8n-nodes-base.executeWorkflow',
     typeVersion: 1.2,
     position: nodesData.MSG_S.position,
     id: nodesData.MSG_S.id,
     name: nodesData.MSG_S.name,
-    notesInFlow: true
+    notesInFlow: true,
   },
   {
     parameters: { jsCode: jsCode.Hours_Remaining },
@@ -649,7 +898,7 @@ const nodes = [
     typeVersion: 2,
     position: nodesData.Hours_Remaining.position,
     id: nodesData.Hours_Remaining.id,
-    name: nodesData.Hours_Remaining.name
+    name: nodesData.Hours_Remaining.name,
   },
   {
     parameters: {
@@ -658,64 +907,106 @@ const nodes = [
           caseSensitive: true,
           leftValue: '',
           typeValidation: 'strict',
-          version: 2
+          version: 2,
         },
         conditions: [
           {
             id: '862a5e54-0722-4dc6-994b-280234a4ccf9',
             leftValue: '={{ $json.hours_remaining }}',
             rightValue: 16,
-            operator: { type: 'number', operation: 'lt' }
-          }
+            operator: { type: 'number', operation: 'lt' },
+          },
         ],
-        combinator: 'and'
+        combinator: 'and',
       },
-      options: {}
+      options: {},
     },
     type: 'n8n-nodes-base.if',
     typeVersion: 2.2,
     position: nodesData.If_Today.position,
     id: nodesData.If_Today.id,
-    name: nodesData.If_Today.name
+    name: nodesData.If_Today.name,
   },
   {
-    parameters: { jsCode: jsCode.Formated_Date_Today },
+    parameters: { jsCode: jsCode.Formatted_Date_Today },
     type: 'n8n-nodes-base.code',
     typeVersion: 2,
-    position: nodesData.Formated_Date_Today.position,
-    id: nodesData.Formated_Date_Today.id,
-    name: nodesData.Formated_Date_Today.name
+    position: nodesData.Formatted_Date_Today.position,
+    id: nodesData.Formatted_Date_Today.id,
+    name: nodesData.Formatted_Date_Today.name,
   },
   {
-    parameters: { jsCode: jsCode.Formated_Date_Not_Today },
+    parameters: { jsCode: jsCode.Formatted_Date_Not_Today },
     type: 'n8n-nodes-base.code',
     typeVersion: 2,
-    position: nodesData.Formated_Date_Not_Today.position,
-    id: nodesData.Formated_Date_Not_Today.id,
-    name: nodesData.Formated_Date_Not_Today.name
+    position: nodesData.Formatted_Date_Not_Today.position,
+    id: nodesData.Formatted_Date_Not_Today.id,
+    name: nodesData.Formatted_Date_Not_Today.name,
   },
   {
     parameters: {
       assignments: {
         assignments: [
-          { id: '5a487ac3-0459-4104-a13d-0904fb24f48a', name: 'workflowName', value: '={{ $workflow.name }}', type: 'string' },
-          { id: '2fc18e1d-1c54-462f-8504-cb6e61826ea5', name: 'apiKey', value: '={{ $node[\'ENV\'].json.evo_apikey }}', type: 'string' },
-          { id: 'a32060c7-4e53-4f30-95be-ad2de2e13209', name: 'botURL', value: '=https://{{ $node[\'ENV\'].json.evo_url }}/message/sendText/{{ $node[\'ENV\'].json.bot_id }}', type: 'string' },
-          { id: '6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f', name: 'messageType', value: 'MSG-1', type: 'string' },
-          { id: 'caa640c7-6d1a-4d64-865c-84c78c1df786', name: 'sessionDate', value: '={{ $(\'Session Data\').item.json.scheduled_event.start_time }}', type: 'string' },
-          { id: '1736e866-b0f4-4634-814b-a6f3d87fb59b', name: 'number', value: '={{ $(\'Session Data\').item.json.user_info.telephone }}', type: 'string' },
-          { id: 'a8535472-a454-44a7-bdbd-c64800d47e61', name: 'text', value: '=Llamada reagendada: \n\nNos vemos {{ $json.fechaFormateada }}.\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos.', type: 'string' },
-          { id: 'b12c92dd-3280-4adb-b7d2-822ea93a1b8b', name: 'pageID', value: '={{ $(\'Get Lead.\').item.json.id }}', type: 'string' }
-        ]
+          {
+            id: '5a487ac3-0459-4104-a13d-0904fb24f48a',
+            name: 'workflowName',
+            value: '={{ $workflow.name }}',
+            type: 'string',
+          },
+          {
+            id: '2fc18e1d-1c54-462f-8504-cb6e61826ea5',
+            name: 'apiKey',
+            value: "={{ $node['ENV'].json.evo_apikey }}",
+            type: 'string',
+          },
+          {
+            id: 'a32060c7-4e53-4f30-95be-ad2de2e13209',
+            name: 'botURL',
+            value:
+              "=https://{{ $node['ENV'].json.evo_url }}/message/sendText/{{ $node['ENV'].json.bot_id }}",
+            type: 'string',
+          },
+          {
+            id: '6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f',
+            name: 'messageType',
+            value: 'MSG-1',
+            type: 'string',
+          },
+          {
+            id: 'caa640c7-6d1a-4d64-865c-84c78c1df786',
+            name: 'sessionDate',
+            value: "={{ $('Session Data').item.json.scheduled_event.start_time }}",
+            type: 'string',
+          },
+          {
+            id: '1736e866-b0f4-4634-814b-a6f3d87fb59b',
+            name: 'number',
+            value: "={{ $('Session Data').item.json.user_info.telephone }}",
+            type: 'string',
+          },
+          {
+            id: 'a8535472-a454-44a7-bdbd-c64800d47e61',
+            name: 'text',
+            value:
+              '=Llamada reagendada: \n\nNos vemos {{ $json.fechaFormateada }}.\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos.',
+            type: 'string',
+          },
+          {
+            id: 'b12c92dd-3280-4adb-b7d2-822ea93a1b8b',
+            name: 'pageID',
+            value: "={{ $('Get Lead.').item.json.id }}",
+            type: 'string',
+          },
+        ],
       },
-      options: {}
+      options: {},
     },
     type: 'n8n-nodes-base.set',
     typeVersion: 3.4,
     position: nodesData.Data_MSG_Today.position,
     id: nodesData.Data_MSG_Today.id,
     name: nodesData.Data_MSG_Today.name,
-    notesInFlow: true
+    notesInFlow: true,
   },
   {
     parameters: {
@@ -723,7 +1014,7 @@ const nodes = [
         __rl: true,
         value: 'NFfhN6ZIxkpBW3Ph',
         mode: 'list',
-        cachedResultName: 'MSG General EvolutionApi'
+        cachedResultName: 'MSG General EvolutionApi',
       },
       workflowInputs: {
         mappingMode: 'defineBelow',
@@ -735,44 +1026,86 @@ const nodes = [
           sessionDate: '={{ $json.sessionDate }}',
           botURL: '={{ $json.botURL }}',
           apiKey: '={{ $json.apiKey }}',
-          text: '={{ $json.text }}'
+          text: '={{ $json.text }}',
         },
         matchingColumns: [],
         schema: [],
         attemptToConvertTypes: false,
-        convertFieldsToString: true
+        convertFieldsToString: true,
       },
-      options: { waitForSubWorkflow: false }
+      options: { waitForSubWorkflow: false },
     },
     type: 'n8n-nodes-base.executeWorkflow',
     typeVersion: 1.2,
     position: nodesData.Data_MSG_Not_Today.position,
     id: nodesData.Data_MSG_Not_Today.id,
     name: nodesData.Data_MSG_Not_Today.name,
-    notesInFlow: true
+    notesInFlow: true,
   },
   {
     parameters: {
       assignments: {
         assignments: [
-          { id: '5a487ac3-0459-4104-a13d-0904fb24f48a', name: 'workflowName', value: '={{ $workflow.name }}', type: 'string' },
-          { id: '2fc18e1d-1c54-462f-8504-cb6e61826ea5', name: 'apiKey', value: '={{ $node[\'ENV\'].json.evo_apikey }}', type: 'string' },
-          { id: 'a32060c7-4e53-4f30-95be-ad2de2e13209', name: 'botURL', value: '=https://{{ $node[\'ENV\'].json.evo_url }}/message/sendText/{{ $node[\'ENV\'].json.bot_id }}', type: 'string' },
-          { id: '6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f', name: 'messageType', value: 'MSG-S', type: 'string' },
-          { id: 'caa640c7-6d1a-4d64-865c-84c78c1df786', name: 'sessionDate', value: '={{ $(\'Session Data\').item.json.scheduled_event.start_time }}', type: 'string' },
-          { id: '1736e866-b0f4-4634-814b-a6f3d87fb59b', name: 'number', value: '={{ $(\'Session Data\').item.json.user_info.telephone }}', type: 'string' },
-          { id: 'a8535472-a454-44a7-bdbd-c64800d47e61', name: 'text', value: '=Llamada reagendada: \n\nNos vemos {{ $json.fechaFormateada }}.\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos.', type: 'string' },
-          { id: 'b12c92dd-3280-4adb-b7d2-822ea93a1b8b', name: 'pageID', value: '={{ $(\'Get Lead.\').item.json.id }}', type: 'string' }
-        ]
+          {
+            id: '5a487ac3-0459-4104-a13d-0904fb24f48a',
+            name: 'workflowName',
+            value: '={{ $workflow.name }}',
+            type: 'string',
+          },
+          {
+            id: '2fc18e1d-1c54-462f-8504-cb6e61826ea5',
+            name: 'apiKey',
+            value: "={{ $node['ENV'].json.evo_apikey }}",
+            type: 'string',
+          },
+          {
+            id: 'a32060c7-4e53-4f30-95be-ad2de2e13209',
+            name: 'botURL',
+            value:
+              "=https://{{ $node['ENV'].json.evo_url }}/message/sendText/{{ $node['ENV'].json.bot_id }}",
+            type: 'string',
+          },
+          {
+            id: '6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f',
+            name: 'messageType',
+            value: 'MSG-S',
+            type: 'string',
+          },
+          {
+            id: 'caa640c7-6d1a-4d64-865c-84c78c1df786',
+            name: 'sessionDate',
+            value: "={{ $('Session Data').item.json.scheduled_event.start_time }}",
+            type: 'string',
+          },
+          {
+            id: '1736e866-b0f4-4634-814b-a6f3d87fb59b',
+            name: 'number',
+            value: "={{ $('Session Data').item.json.user_info.telephone }}",
+            type: 'string',
+          },
+          {
+            id: 'a8535472-a454-44a7-bdbd-c64800d47e61',
+            name: 'text',
+            value:
+              '=Llamada reagendada: \n\nNos vemos {{ $json.fechaFormateada }}.\n\nPD: Puede que te lleguen mensajes con la hora anterior, ignoralos.',
+            type: 'string',
+          },
+          {
+            id: 'b12c92dd-3280-4adb-b7d2-822ea93a1b8b',
+            name: 'pageID',
+            value: "={{ $('Get Lead.').item.json.id }}",
+            type: 'string',
+          },
+        ],
       },
-      options: {}
+      options: {},
     },
     type: 'n8n-nodes-base.set',
     typeVersion: 3.4,
     position: nodesData.Data_MSG_Today.position,
     id: nodesData.Data_MSG_Today.id,
     name: nodesData.Data_MSG_Today.name,
-    notesInFlow: true
+    notesInFlow: true,
   },
   {
     parameters: {
@@ -780,7 +1113,7 @@ const nodes = [
         __rl: true,
         value: 'NFfhN6ZIxkpBW3Ph',
         mode: 'list',
-        cachedResultName: 'MSG General EvolutionApi'
+        cachedResultName: 'MSG General EvolutionApi',
       },
       workflowInputs: {
         mappingMode: 'defineBelow',
@@ -792,21 +1125,21 @@ const nodes = [
           sessionDate: '={{ $json.sessionDate }}',
           botURL: '={{ $json.botURL }}',
           apiKey: '={{ $json.apiKey }}',
-          text: '={{ $json.text }}'
+          text: '={{ $json.text }}',
         },
         matchingColumns: [],
         schema: [],
         attemptToConvertTypes: false,
-        convertFieldsToString: true
+        convertFieldsToString: true,
       },
-      options: { waitForSubWorkflow: false }
+      options: { waitForSubWorkflow: false },
     },
     type: 'n8n-nodes-base.executeWorkflow',
     typeVersion: 1.2,
     position: nodesData.MSG_Not_Today.position,
     id: nodesData.MSG_Not_Today.id,
     name: nodesData.MSG_Not_Today.name,
-    notesInFlow: true
+    notesInFlow: true,
   },
   {
     parameters: {
@@ -815,158 +1148,114 @@ const nodes = [
           caseSensitive: true,
           leftValue: '',
           typeValidation: 'strict',
-          version: 2
+          version: 2,
         },
         conditions: [
           {
             id: '68706d95-5dad-4795-b348-0e424ea1104c',
-            leftValue: '={{ $node[\'ENV\'].json.bot_id }}',
+            leftValue: "={{ $node['ENV'].json.bot_id }}",
             rightValue: '',
-            operator: { type: 'string', operation: 'notEmpty', singleValue: true }
-          }
+            operator: { type: 'string', operation: 'notEmpty', singleValue: true },
+          },
         ],
-        combinator: 'and'
+        combinator: 'and',
       },
-      options: {}
+      options: {},
     },
     type: 'n8n-nodes-base.if',
     typeVersion: 2.2,
     position: nodesData.If_Bot_Reschedule.position,
     id: nodesData.If_Bot_Reschedule.id,
-    name: nodesData.If_Bot_Reschedule.name
-  }
+    name: nodesData.If_Bot_Reschedule.name,
+  },
 ];
 
 const connections = {
   Webhook: {
-    main: [
-      [{ node: nodesData.ID_Project.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.ID_Project.name, type: 'main', index: 0 }]],
   },
   ID_Project: {
-    main: [
-      [{ node: nodesData.Get_Project.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.Get_Project.name, type: 'main', index: 0 }]],
   },
   Get_Project: {
-    main: [
-      [{ node: nodesData.Get_Bot.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.Get_Bot.name, type: 'main', index: 0 }]],
   },
   Get_Bot: {
-    main: [
-      [{ node: nodesData.ENV.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.ENV.name, type: 'main', index: 0 }]],
   },
   ENV: {
-    main: [
-      [{ node: nodesData.Session_Data.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.Session_Data.name, type: 'main', index: 0 }]],
   },
   Session_Data: {
-    main: [
-      [{ node: nodesData.Event_Type.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.Event_Type.name, type: 'main', index: 0 }]],
   },
   Event_Type: {
     main: [
       [{ node: nodesData.Create_Lead.name, type: 'main', index: 0 }],
       [{ node: nodesData.Get_Lead_Cancel.name, type: 'main', index: 0 }],
-      [{ node: nodesData.Get_Lead_Reschedule.name, type: 'main', index: 0 }]
-    ]
+      [{ node: nodesData.Get_Lead_Reschedule.name, type: 'main', index: 0 }],
+    ],
   },
   Create_Lead: {
-    main: [
-      [{ node: nodesData.Form.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.Form.name, type: 'main', index: 0 }]],
   },
   Get_Lead_Cancel: {
-    main: [
-      [{ node: nodesData.Cancel.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.Cancel.name, type: 'main', index: 0 }]],
   },
   Get_Lead_Reschedule: {
-    main: [
-      [{ node: nodesData.Reschedule.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.Reschedule.name, type: 'main', index: 0 }]],
   },
   Form: {
-    main: [
-      [{ node: nodesData.If_Bot_Create.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.If_Bot_Create.name, type: 'main', index: 0 }]],
   },
   If_Bot_Create: {
     main: [
-      [{ node: nodesData.Formated_Date.name, type: 'main', index: 0 }],
-      [{ node: nodesData.Get_Not_Bot.name, type: 'main', index: 0 }]
-    ]
+      [{ node: nodesData.Formatted_Date.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Get_Not_Bot.name, type: 'main', index: 0 }],
+    ],
   },
-  Formated_Date: {
-    main: [
-      [{ node: nodesData.Data_MSG_1.name, type: 'main', index: 0 }]
-    ]
+  Formatted_Date: {
+    main: [[{ node: nodesData.Data_MSG_1.name, type: 'main', index: 0 }]],
   },
   Data_MSG_1: {
-    main: [
-      [{ node: nodesData.MSG_1.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.MSG_1.name, type: 'main', index: 0 }]],
   },
   MSG_1: {
-    main: [
-      [{ node: nodesData.Get_Not_Bot.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.Get_Not_Bot.name, type: 'main', index: 0 }]],
   },
   Get_Not_Bot: {
-    main: [
-      [{ node: nodesData.Data_MSG_S.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.Data_MSG_S.name, type: 'main', index: 0 }]],
   },
   Data_MSG_S: {
-    main: [
-      [{ node: nodesData.MSG_S.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.MSG_S.name, type: 'main', index: 0 }]],
   },
   Reschedule: {
-    main: [
-      [{ node: nodesData.If_Bot_Reschedule.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.If_Bot_Reschedule.name, type: 'main', index: 0 }]],
   },
   If_Bot_Reschedule: {
-    main: [
-      [{ node: nodesData.Hours_Remaining.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.Hours_Remaining.name, type: 'main', index: 0 }]],
   },
   Hours_Remaining: {
-    main: [
-      [{ node: nodesData.If_Today.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.If_Today.name, type: 'main', index: 0 }]],
   },
   If_Today: {
     main: [
-      [{ node: nodesData.Formated_Date_Today.name, type: 'main', index: 0 }],
-      [{ node: nodesData.Formated_Date_Not_Today.name, type: 'main', index: 0 }]
-    ]
+      [{ node: nodesData.Formatted_Date_Today.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Formatted_Date_Not_Today.name, type: 'main', index: 0 }],
+    ],
   },
-  Formated_Date_Today: {
-    main: [
-      [{ node: nodesData.Data_MSG_Today.name, type: 'main', index: 0 }]
-    ]
+  Formatted_Date_Today: {
+    main: [[{ node: nodesData.Data_MSG_Today.name, type: 'main', index: 0 }]],
   },
   Data_MSG_Today: {
-    main: [
-      [{ node: nodesData.MSG_TODAY.name, type: 'main', index: 0 }]
-    ]
+    main: [[{ node: nodesData.MSG_Today.name, type: 'main', index: 0 }]],
   },
-  Formated_Date_Not_Today: {
-    main: [
-      [{ node: nodesData.Data_MSG_Not_Today.name, type: 'main', index: 0 }]
-    ]
+  Formatted_Date_Not_Today: {
+    main: [[{ node: nodesData.Data_MSG_Not_Today.name, type: 'main', index: 0 }]],
   },
   Data_MSG_Not_Today: {
-    main: [
-      [{ node: nodesData.MSG_Not_Today.name, type: 'main', index: 0 }]
-    ]
-  }
+    main: [[{ node: nodesData.MSG_Not_Today.name, type: 'main', index: 0 }]],
+  },
 };
 
 const workflow = {
@@ -976,8 +1265,8 @@ const workflow = {
   settings: {
     executionOrder: 'v1',
     timezone: 'Europe/Madrid',
-    errorWorkflow: 'cTGB7gdBc2cq8Gss'
-  }
+    errorWorkflow: 'cTGB7gdBc2cq8Gss',
+  },
 };
 
 return [{ json: workflow }];
