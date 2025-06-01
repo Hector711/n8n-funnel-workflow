@@ -44,7 +44,6 @@ const nodesData = {
   MSG_Today: { id: uuidv4(), name: 'MSG-Today', position: [2340, 580] },
   // ──────────── NOT Today ──────────────
   Data_MSG_Not_Today: { id: uuidv4(), name: 'Data MSG-Not-Today', position: [2160, 760] },
-  MSG_Not_Today: { id: uuidv4(), name: 'MSG-Not-Today', position: [2340, 760] },
 };
 
 const credentials = {
@@ -1029,7 +1028,7 @@ const nodes = [
           {
             id: 'b12c92dd-3280-4adb-b7d2-822ea93a1b8b',
             name: 'pageID',
-            value: "={{ $('Get Lead.').item.json.id }}",
+            value: "={{ $('Get Lead Reschedule').item.json.id }}",
             type: 'string',
           },
         ],
@@ -1128,46 +1127,12 @@ const nodes = [
           {
             id: 'b12c92dd-3280-4adb-b7d2-822ea93a1b8b',
             name: 'pageID',
-            value: "={{ $('Get Lead.').item.json.id }}",
+            value: "={{ $('Get Lead Reschedule').item.json.id }}",
             type: 'string',
           },
         ],
       },
       options: {},
-    },
-  },
-  {
-    id: nodesData.MSG_Not_Today.id,
-    name: nodesData.MSG_Not_Today.name,
-    type: 'n8n-nodes-base.executeWorkflow',
-    typeVersion: 1.2,
-    position: nodesData.MSG_Not_Today.position,
-    notesInFlow: true,
-    parameters: {
-      workflowId: {
-        __rl: true,
-        value: 'NFfhN6ZIxkpBW3Ph',
-        mode: 'list',
-        cachedResultName: 'MSG General EvolutionApi',
-      },
-      workflowInputs: {
-        mappingMode: 'defineBelow',
-        value: {
-          workflowName: '={{ $json.workflowName }}',
-          messageType: '={{ $json.messageType }}',
-          number: '={{ $json.number }}',
-          pageID: '={{ $json.pageID }}',
-          sessionDate: '={{ $json.sessionDate }}',
-          botURL: '={{ $json.botURL }}',
-          apiKey: '={{ $json.apiKey }}',
-          text: '={{ $json.text }}',
-        },
-        matchingColumns: [],
-        schema: [],
-        attemptToConvertTypes: false,
-        convertFieldsToString: true,
-      },
-      options: { waitForSubWorkflow: false },
     },
   },
 ];
@@ -1248,9 +1213,6 @@ const connections = {
   },
   'Data MSG-Today': {
     main: [[{ node: nodesData.MSG_Today.name, type: 'main', index: 0 }]],
-  },
-  'Data MSG-Not-Today': {
-    main: [[{ node: nodesData.MSG_Not_Today.name, type: 'main', index: 0 }]],
   },
 };
 
