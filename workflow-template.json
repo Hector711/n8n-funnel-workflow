@@ -1,0 +1,789 @@
+{
+  "name": "PLANTILLA",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const session_date = $node[\"Session Data\"].json.scheduled_event.start_time;\nconst fecha = new Date(session_date);\n\n// Configuración genérica para la zona horaria\nconst opciones = { timeZone: 'Europe/Madrid', hour12: false };\n\n// Obtenemos cada parte por separado usando el toLocaleString con las opciones adecuadas\nconst diaSemana = fecha.toLocaleString('es-ES', { ...opciones, weekday: 'long' });\nconst diaMes    = fecha.toLocaleString('es-ES', { ...opciones, day: 'numeric' });\nconst hora      = fecha.toLocaleString('es-ES', { ...opciones, hour: '2-digit' });\nconst minutos   = fecha.toLocaleString('es-ES', { ...opciones, minute: '2-digit' }).padStart(2, '0'); // Asegura dos dígitos\n\n// Construimos la cadena final\nconst fechaFormateada = `el ${diaSemana} ${diaMes} a las ${hora}:${minutos}`;\n\nreturn [\n  {\n    fechaFormateada\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        -100
+      ],
+      "id": "88593705-c601-4152-a391-4ee77e86fc3f",
+      "name": "Formated Date"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5a487ac3-0459-4104-a13d-0904fb24f48a",
+              "name": "workflowName",
+              "value": "={{ $workflow.name }}",
+              "type": "string"
+            },
+            {
+              "id": "2fc18e1d-1c54-462f-8504-cb6e61826ea5",
+              "name": "apiKey",
+              "value": "={{ $node['ENV'].json.evo_apikey }}",
+              "type": "string"
+            },
+            {
+              "id": "a32060c7-4e53-4f30-95be-ad2de2e13209",
+              "name": "botURL",
+              "value": "=https://{{ $node['ENV'].json.evo_url }}/message/sendText/{{ $node['ENV'].json.bot_id }}",
+              "type": "string"
+            },
+            {
+              "id": "6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f",
+              "name": "messageType",
+              "value": "MSG-1",
+              "type": "string"
+            },
+            {
+              "id": "caa640c7-6d1a-4d64-865c-84c78c1df786",
+              "name": "sessionDate",
+              "value": "={{ $('Session Data').item.json.scheduled_event.start_time }}",
+              "type": "string"
+            },
+            {
+              "id": "1736e866-b0f4-4634-814b-a6f3d87fb59b",
+              "name": "number",
+              "value": "={{ $('Session Data').item.json.user_info.telephone }}",
+              "type": "string"
+            },
+            {
+              "id": "a8535472-a454-44a7-bdbd-c64800d47e61",
+              "name": "text",
+              "value": "=¡Hola {{ $node['Session Data'].json.user_info.name }}! 👋\n\nEncantado de saludarte, te escribo por la llamada que tienes agendada conmigo.\n\nPronto te contactaré para confirmar algunos detalles importantes. Es fundamental que podamos hablar para dejar todo listo para tu sesión.\n\nPor favor, mantente atent@ a tu teléfono 📞\n\n⚠️ Si no logramos contactar en las próximas 24 horas, cancelaremos la llamada.",
+              "type": "string"
+            },
+            {
+              "id": "b12c92dd-3280-4adb-b7d2-822ea93a1b8b",
+              "name": "pageID",
+              "value": "={{ $('Create Lead').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1180,
+        -100
+      ],
+      "id": "04972bb6-8889-458c-8440-a134f8fca483",
+      "name": "Data MSG-1",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "NFfhN6ZIxkpBW3Ph",
+          "mode": "list",
+          "cachedResultName": "MSG General EvolutionApi"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "workflowName": "={{ $json.workflowName }}",
+            "messageType": "={{ $json.messageType }}",
+            "number": "={{ $json.number }}",
+            "pageID": "={{ $json.pageID }}",
+            "sessionDate": "={{ $json.sessionDate }}",
+            "botURL": "={{ $json.botURL }}",
+            "apiKey": "={{ $json.apiKey }}",
+            "text": "={{ $json.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "workflowName",
+              "displayName": "workflowName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "apiKey",
+              "displayName": "apiKey",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "botURL",
+              "displayName": "botURL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "messageType",
+              "displayName": "messageType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionDate",
+              "displayName": "sessionDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "number",
+              "displayName": "number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "pageID",
+              "displayName": "pageID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1340,
+        -100
+      ],
+      "id": "9d2f48d6-caa1-45e9-82e1-18ead93ebf48",
+      "name": "MSG-1",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "heading_2",
+              "textContent": "Formulario Cualificación"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[0]?.question ? 'Pregunta 1: ' : '' }}",
+                    "annotationUi": {
+                      "bold": true,
+                      "color": "blue"
+                    }
+                  },
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[0]?.question || '' }}",
+                    "annotationUi": {
+                      "italic": true,
+                      "color": "gray"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "bulleted_list_item",
+              "textContent": "={{ $('Session Data').item.json.questions_and_answers[0]?.answer || ' ' }}"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[1]?.question ? 'Pregunta 2: ' : '' }}",
+                    "annotationUi": {
+                      "bold": true,
+                      "color": "blue"
+                    }
+                  },
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[1]?.question || '' }}",
+                    "annotationUi": {
+                      "italic": true,
+                      "color": "gray"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "bulleted_list_item",
+              "textContent": "={{ $('Session Data').item.json.questions_and_answers[1]?.answer || ' ' }}"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[2]?.question ? 'Pregunta 3: ' : '' }}",
+                    "annotationUi": {
+                      "bold": true,
+                      "color": "blue"
+                    }
+                  },
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[2]?.question || '' }}",
+                    "annotationUi": {
+                      "italic": true,
+                      "color": "gray"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "bulleted_list_item",
+              "textContent": "={{ $('Session Data').item.json.questions_and_answers[2]?.answer || ' ' }}"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[3]?.question ? 'Pregunta 4: ' : '' }}",
+                    "annotationUi": {
+                      "bold": true,
+                      "color": "blue"
+                    }
+                  },
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[3]?.question || '' }}",
+                    "annotationUi": {
+                      "italic": true,
+                      "color": "gray"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "bulleted_list_item",
+              "textContent": "={{ $('Session Data').item.json.questions_and_answers[3]?.answer || ' ' }}"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[4]?.question ? 'Pregunta 5: ' : '' }}",
+                    "annotationUi": {
+                      "bold": true,
+                      "color": "blue"
+                    }
+                  },
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[4]?.question || '' }}",
+                    "annotationUi": {
+                      "italic": true,
+                      "color": "gray"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "bulleted_list_item",
+              "textContent": "={{ $('Session Data').item.json.questions_and_answers[4]?.answer || ' ' }}"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[5]?.question ? 'Pregunta 6: ' : '' }}",
+                    "annotationUi": {
+                      "bold": true,
+                      "color": "blue"
+                    }
+                  },
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[5]?.question || '' }}",
+                    "annotationUi": {
+                      "italic": true,
+                      "color": "gray"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "bulleted_list_item",
+              "textContent": "={{ $('Session Data').item.json.questions_and_answers[5]?.answer || ' ' }}"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[6]?.question ? 'Pregunta 7: ' : '' }}",
+                    "annotationUi": {
+                      "bold": true,
+                      "color": "blue"
+                    }
+                  },
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[6]?.question || '' }}",
+                    "annotationUi": {
+                      "italic": true,
+                      "color": "gray"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "bulleted_list_item",
+              "textContent": "={{ $('Session Data').item.json.questions_and_answers[6]?.answer || ' ' }}"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[7]?.question ? 'Pregunta 8: ' : '' }}",
+                    "annotationUi": {
+                      "bold": true,
+                      "color": "blue"
+                    }
+                  },
+                  {
+                    "text": "={{ $('Session Data').item.json.questions_and_answers[7]?.question || '' }}",
+                    "annotationUi": {
+                      "italic": true,
+                      "color": "gray"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "bulleted_list_item",
+              "textContent": "={{ $('Session Data').item.json.questions_and_answers[7]?.answer || ' ' }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        500,
+        80
+      ],
+      "id": "61487375-0aed-4941-a5d7-ae629d27a714",
+      "name": "Form",
+      "notesInFlow": true,
+      "credentials": {
+        "notionApi": {
+          "id": "XT8xP00ltiossUIo",
+          "name": "CRMs"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "68706d95-5dad-4795-b348-0e424ea1104c",
+              "leftValue": "={{ $node['ENV'].json.bot_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        780,
+        80
+      ],
+      "id": "e81a2bc8-f657-4ad3-b33f-8b249c088e46",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "NFfhN6ZIxkpBW3Ph",
+          "mode": "list",
+          "cachedResultName": "MSG General EvolutionApi"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "workflowName": "={{ $json.workflowName }}",
+            "messageType": "={{ $json.messageType }}",
+            "number": "={{ $json.number }}",
+            "pageID": "={{ $json.pageID }}",
+            "sessionDate": "={{ $json.sessionDate }}",
+            "botURL": "={{ $json.botURL }}",
+            "apiKey": "={{ $json.apiKey }}",
+            "text": "={{ $json.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "workflowName",
+              "displayName": "workflowName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "apiKey",
+              "displayName": "apiKey",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "botURL",
+              "displayName": "botURL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "messageType",
+              "displayName": "messageType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionDate",
+              "displayName": "sessionDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "number",
+              "displayName": "number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "pageID",
+              "displayName": "pageID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1900,
+        80
+      ],
+      "id": "c4eef625-8c55-4158-ae2a-ef1cb2386411",
+      "name": "MSG-S",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "1b1ea5f7-2f4a-8039-97a0-e27d8aeb1d86",
+          "mode": "list",
+          "cachedResultName": "Bots",
+          "cachedResultUrl": "https://www.notion.so/1b1ea5f72f4a803997a0e27d8aeb1d86"
+        },
+        "limit": 1,
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Notificaciones|checkbox",
+              "condition": "equals",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1580,
+        80
+      ],
+      "id": "63a34055-6cf4-4661-b2d1-1459e4b72c45",
+      "name": "Get Not Bot",
+      "notesInFlow": true,
+      "credentials": {
+        "notionApi": {
+          "id": "3Wra6QpVIq6zJ6vM",
+          "name": "PBS | Bots"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5a487ac3-0459-4104-a13d-0904fb24f48a",
+              "name": "workflowName",
+              "value": "={{ $workflow.name }}",
+              "type": "string"
+            },
+            {
+              "id": "2fc18e1d-1c54-462f-8504-cb6e61826ea5",
+              "name": "apiKey",
+              "value": "={{ $node['Get Not Bot'].json.property_api_key }}",
+              "type": "string"
+            },
+            {
+              "id": "a32060c7-4e53-4f30-95be-ad2de2e13209",
+              "name": "botURL",
+              "value": "=https://{{ $node['Get Not Bot'].json.property_server_url }}/message/sendText/{{ $node['Get Not Bot'].json.property_bot_id }}",
+              "type": "string"
+            },
+            {
+              "id": "6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f",
+              "name": "messageType",
+              "value": "MSG-S",
+              "type": "string"
+            },
+            {
+              "id": "caa640c7-6d1a-4d64-865c-84c78c1df786",
+              "name": "sessionDate",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "1736e866-b0f4-4634-814b-a6f3d87fb59b",
+              "name": "number",
+              "value": "={{ $('ENV').item.json.client_whatsapp }}",
+              "type": "string"
+            },
+            {
+              "id": "a8535472-a454-44a7-bdbd-c64800d47e61",
+              "name": "text",
+              "value": "=🤖: Ha entrado un nuevo lead!",
+              "type": "string"
+            },
+            {
+              "id": "b12c92dd-3280-4adb-b7d2-822ea93a1b8b",
+              "name": "pageID",
+              "value": "=",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1740,
+        80
+      ],
+      "id": "df1b74c7-f11c-4348-8fc6-efb512ca062c",
+      "name": "Data MSG-S",
+      "notesInFlow": true,
+      "executeOnce": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Formated Date": {
+      "main": [
+        [
+          {
+            "node": "Data MSG-1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data MSG-1": {
+      "main": [
+        [
+          {
+            "node": "MSG-1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MSG-1": {
+      "main": [
+        [
+          {
+            "node": "Get Not Bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Formated Date",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Not Bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Not Bot": {
+      "main": [
+        [
+          {
+            "node": "Data MSG-S",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data MSG-S": {
+      "main": [
+        [
+          {
+            "node": "MSG-S",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Madrid",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "errorWorkflow": "cTGB7gdBc2cq8Gss"
+  },
+  "versionId": "981061ce-6a79-40e8-bc25-91d13a845d59",
+  "meta": {
+    "instanceId": "5a611ec71f389ab464f49786b236532dd4c28168a9ed063d31f740c8c0c23499"
+  },
+  "id": "BraiUiHukcbBvm5m",
+  "tags": []
+}
