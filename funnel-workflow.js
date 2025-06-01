@@ -9,7 +9,7 @@ function uuidv4() {
 const expr = inner => '=' + '{' + '{ ' + inner + ' }}';
 
 const workflowDataInput = $('Workflow Data').first().json;
-const projectNameSlug = workflowDataInput.workflow_name.trim().toLowerCase().replace(/\s+/g, '-');
+const projectNameSlug = workflowDataInput.project_slug
 const projectPageID = $('Data').first().json.projectPageID || '';
 
 const nodesData = {
@@ -158,7 +158,7 @@ const setConfig = {
   },
   apiKey: {
     name: 'apiKey',
-    value: "={{ $node['ENV'].json.evo_apikey }}",
+    value: "={{ $node['ENV.json.evo_apikey }}",
   },
   botURL: {
     name: 'botURL',
