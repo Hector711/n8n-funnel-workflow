@@ -155,11 +155,11 @@ return [
 const setConfig = {
   workflowName: {
     name: 'workflowName',
-    value: '$workflow.name',
+    value: "={{ $workflow.name }}",
   },
   apiKey: {
     name: 'apiKey',
-    value: "$node['ENV'].json.evo_apikey",
+    value: "={{ $node['ENV'].json.evo_apikey }}",
   },
   botURL: {
     name: 'botURL',
@@ -175,11 +175,11 @@ const setConfig = {
   },
   sessionDate: {
     name: 'sessionDate',
-    value: "$node['Session Data'].json.scheduled_event.start_time",
+    value: "={{ $node['Session Data'].json.scheduled_event.start_time }}",
   },
   number: {
     name: 'number',
-    value: "$node['Session Data'].json.user_info.telephone",
+    value: "={{ $node['Session Data'].json.user_info.telephone }}",
   },
   text: {
     name: 'text',
@@ -191,7 +191,7 @@ const setConfig = {
   pageID: {
     name: 'pageID',
     value: {
-      MSG_1: "$node['Create Lead'].json.id",
+      MSG_1: "={{ $node['Create Lead'].json.id }}",
       MSG_Reschedule: "={{ $node['Get Lead Reschedule'].json.id }}",
     },
   },
@@ -621,16 +621,6 @@ const nodes = [
     },
   },
   {
-    id: nodesData.Formatted_Date.id,
-    name: nodesData.Formatted_Date.name,
-    type: 'n8n-nodes-base.code',
-    typeVersion: 2,
-    position: nodesData.Formatted_Date.position,
-    parameters: {
-      jsCode: jsCode.Formatted_Date,
-    },
-  },
-  {
     id: nodesData.Data_MSG_1.id,
     name: nodesData.Data_MSG_1.name,
     type: 'n8n-nodes-base.set',
@@ -907,6 +897,7 @@ const nodes = [
     typeVersion: 2.2,
     position: nodesData.Reschedule.position,
     notesInFlow: true,
+    executeOnce: true,
     credentials: { notionApi: { id: credentials.notion.pbs } },
     parameters: {
       resource: 'databasePage',
@@ -1005,7 +996,7 @@ const nodes = [
           {
             id: 'a8535472-a454-44a7-bdbd-c64800d47e61',
             name: setConfig.text.name,
-            value: setConfig.text.value.MSG_Today,
+            value: setConfig.text.value.MSG_Reschedule,
             type: 'string',
           },
           {
@@ -1095,12 +1086,9 @@ const connections = {
   },
   'If Bot Create': {
     main: [
-      [{ node: nodesData.Formatted_Date.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Data_MSG_1.name, type: 'main', index: 0 }],
       [{ node: nodesData.Get_Not_Bot.name, type: 'main', index: 0 }],
     ],
-  },
-  'Formatted Date': {
-    main: [[{ node: nodesData.Data_MSG_1.name, type: 'main', index: 0 }]],
   },
   'Data MSG-1': {
     main: [[{ node: nodesData.MSG_1.name, type: 'main', index: 0 }]],
