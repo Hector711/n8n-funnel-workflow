@@ -1120,6 +1120,7 @@ const workflow = {
     executionOrder: 'v1',
     timezone: 'Europe/Madrid',
     errorWorkflow: 'cTGB7gdBc2cq8Gss',
+    saveExecutionProgress: true
   },
 };
 
