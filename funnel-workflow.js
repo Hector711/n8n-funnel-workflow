@@ -1179,86 +1179,86 @@ const connections = {
   "Webhook": {
     "main": [[{ "node": nodesData.ID_Project.name, "type": 'main', "index": 0 }]],
   },
-  "ID_Project": {
+  "ID Project": {
     "main": [[{ "node": nodesData.Get_Project.name, "type": 'main', "index": 0 }]],
   },
-  "Get_Project": {
+  "Get Project": {
     "main": [[{ "node": nodesData.Get_Bot.name, "type": 'main', "index": 0 }]],
   },
-  "Get_Bot": {
+  "Get Bot": {
     "main": [[{ "node": nodesData.ENV.name, "type": 'main', "index": 0 }]],
   },
   "ENV": {
     "main": [[{ "node": nodesData.Session_Data.name, "type": 'main', "index": 0 }]],
   },
-  "Session_Data": {
+  "Session Data": { 
     "main": [[{ "node": nodesData.Event_Type.name, "type": 'main', "index": 0 }]],
   },
-  "Event_Type": {
+  "Event Type": {
     "main": [
       [{ "node": nodesData.Create_Lead.name, "type": 'main', "index": 0 }],
       [{ "node": nodesData.Get_Lead_Cancel.name, "type": 'main', "index": 0 }],
       [{ "node": nodesData.Get_Lead_Reschedule.name, "type": 'main', "index": 0 }],
     ],
   },
-  "Create_Lead": {
+  "Create Lead": {
     "main": [[{ "node": nodesData.Form.name, "type": 'main', "index": 0 }]],
   },
-  "Get_Lead_Cancel": {
+  "Get Lead Cancel": {
     "main": [[{ "node": nodesData.Cancel.name, "type": 'main', "index": 0 }]],
   },
-  "Get_Lead_Reschedule": {
+  "Get Lead Reschedule": {
     "main": [[{ "node": nodesData.Reschedule.name, "type": 'main', "index": 0 }]],
   },
   "Form": {
     "main": [[{ "node": nodesData.If_Bot_Create.name, "type": 'main', "index": 0 }]],
   },
-  "If_Bot_Create": {
+  "If Bot Create": {
     "main": [
       [{ "node": nodesData.Formatted_Date.name, "type": 'main', "index": 0 }],
       [{ "node": nodesData.Get_Not_Bot.name, "type": 'main', "index": 0 }],
     ],
   },
-  "Formatted_Date": {
+  "Formatted Date": {
     "main": [[{ "node": nodesData.Data_MSG_1.name, "type": 'main', "index": 0 }]],
   },
-  "Data_MSG_1": {
+  "Data MSG 1": {
     "main": [[{ "node": nodesData.MSG_1.name, "type": 'main', "index": 0 }]],
   },
-  "MSG_1": {
+  "MSG 1": {
     "main": [[{ "node": nodesData.Get_Not_Bot.name, "type": 'main', "index": 0 }]],
   },
-  "Get_Not_Bot": {
+  "Get Not Bot": {
     "main": [[{ "node": nodesData.Data_MSG_S.name, "type": 'main', "index": 0 }]],
   },
-  "Data_MSG_S": {
+  "Data MSG S": {
     "main": [[{ "node": nodesData.MSG_S.name, "type": 'main', "index": 0 }]],
   },
   "Reschedule": {
     "main": [[{ "node": nodesData.If_Bot_Reschedule.name, "type": 'main', "index": 0 }]],
   },
-  "If_Bot_Reschedule": {
+  "If Bot Reschedule": {
     "main": [[{ "node": nodesData.Hours_Remaining.name, "type": 'main', "index": 0 }]],
   },
-  "Hours_Remaining": {
+  "Hours Remaining": {
     "main": [[{ "node": nodesData.If_Today.name, "type": 'main', "index": 0 }]],
   },
-  "If_Today": {
+  "If Today": {
     "main": [
       [{ "node": nodesData.Formatted_Date_Today.name, "type": 'main', "index": 0 }],
       [{ "node": nodesData.Formatted_Date_Not_Today.name, "type": 'main', "index": 0 }],
     ],
   },
-  "Formatted_Date_Today": {
+  "Formatted Date Today": {
     "main": [[{ "node": nodesData.Data_MSG_Today.name, "type": 'main', "index": 0 }]],
   },
-  "Data_MSG_Today": {
+  "Data MSG Today": {
     "main": [[{ "node": nodesData.MSG_Today.name, "type": 'main', "index": 0 }]],
   },
-  "Formatted_Date_Not_Today": {
+  "Formatted Date Not Today": {
     "main": [[{ "node": nodesData.Data_MSG_Not_Today.name, "type": 'main', "index": 0 }]],
   },
-  "Data_MSG_Not_Today": {
+  "Data MSG Not Today": {
     "main": [[{ "node": nodesData.MSG_Not_Today.name, "type": 'main', "index": 0 }]],
   },
 };
