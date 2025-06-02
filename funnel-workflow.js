@@ -802,7 +802,7 @@ const nodes = [
           {
             id: uuidv4(),
             name: 'botURL',
-            value: `=https://\${$node['Get Not Bot'].json.property_server_url}/message/sendText/\${$node['Get Not Bot'].json.property_bot_id}`,
+            value: `=https://{{$node['Get Not Bot'].json.property_server_url}}/message/sendText/{{$node['Get Not Bot'].json.property_bot_id}}`,
             type: 'string',
           },
           { id: uuidv4(), name: 'messageType', value: 'MSG-S', type: 'string' },
