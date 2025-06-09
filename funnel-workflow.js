@@ -26,9 +26,6 @@ const nodesData = {
   If_Bot_Create: { id: uuidv4(), name: 'If Bot Create', position: [1800, 220] },
   Data_MSG_1: { id: uuidv4(), name: 'Data MSG-1', position: [2160, 220] },
   MSG_1: { id: uuidv4(), name: 'MSG-1', position: [2340, 220] },
-  Get_Not_Bot: { id: uuidv4(), name: 'Get Not Bot', position: [1980, 400] },
-  Data_MSG_S: { id: uuidv4(), name: 'Data MSG-S', position: [2160, 400] },
-  MSG_S: { id: uuidv4(), name: 'MSG-S', position: [2340, 400] },
   // ──────────── CANCEL ──────────────
   Get_Lead_Cancel: { id: uuidv4(), name: 'Get Lead Cancel', position: [1260, 400] },
   Cancel: { id: uuidv4(), name: 'Cancel', position: [1440, 400] },
@@ -162,7 +159,7 @@ const setConfig = {
   },
   botURL: {
     name: 'botURL',
-    value: `=https://\${$node['ENV'].json.evo_url}/message/sendText/\${$node['ENV'].json.bot_id}`,
+    value: `=https://{{$node['ENV'].json.evo_url}}/message/sendText/{{$node['ENV'].json.bot_id}}`,
   },
   messageType: {
     name: 'messageType',
@@ -182,7 +179,7 @@ const setConfig = {
   text: {
     name: 'text',
     value: {
-      MSG_1: `=¡Hola \${$node['Session Data'].json.user_info.name}! 👋\n\nEncantado de saludarte, te escribo por la llamada que tienes agendada conmigo.\n\nPronto te contactaré para confirmar algunos detalles importantes. Es fundamental que podamos hablar para dejar todo listo para tu sesión.\n\nPor favor, mantente atent@ a tu teléfono 📞\n\n⚠️ Si no logramos contactar en las próximas 24 horas, cancelaremos la llamada.`,
+      MSG_1: `=¡Hola {{$node['Session Data'].json.user_info.name}}! 👋\n\nEncantado de saludarte, te escribo por la llamada que tienes agendada conmigo.\n\nPronto te contactaré para confirmar algunos detalles importantes. Es fundamental que podamos hablar para dejar todo listo para tu sesión.\n\nPor favor, mantente atent@ a tu teléfono 📞\n\n⚠️ Si no logramos contactar en las próximas 24 horas, cancelaremos la llamada.`,
       MSG_Reschedule: `=Llamada reagendada: \n\nNos vemos {{ $json.fechaFormateada}}.\n{{$json.hours_remaining > 18 ? "PD: Puede que te lleguen mensajes con la hora anterior, ignoralos." : "" }}`,
     },
   },
@@ -756,105 +753,6 @@ const nodes = [
     },
   },
   {
-    id: nodesData.Get_Not_Bot.id,
-    name: nodesData.Get_Not_Bot.name,
-    type: 'n8n-nodes-base.notion',
-    typeVersion: 2.2,
-    position: nodesData.Get_Not_Bot.position,
-    notesInFlow: true,
-    credentials: { notionApi: { id: credentials.notion.pbs } },
-    parameters: {
-      resource: 'databasePage',
-      operation: 'getAll',
-      databaseId: {
-        __rl: true,
-        value: '1b1ea5f7-2f4a-8039-97a0-e27d8aeb1d86',
-        mode: 'list',
-        cachedResultName: 'Bots',
-        cachedResultUrl: 'https://www.notion.so/1b1ea5f72f4a803997a0e27d8aeb1d86',
-      },
-      limit: 1,
-      filterType: 'manual',
-      filters: {
-        conditions: [{ key: 'Notificaciones|checkbox', condition: 'equals', checkboxValue: true }],
-      },
-      options: {},
-    },
-  },
-  {
-    id: nodesData.Data_MSG_S.id,
-    name: nodesData.Data_MSG_S.name,
-    type: 'n8n-nodes-base.set',
-    typeVersion: 3.4,
-    position: nodesData.Data_MSG_S.position,
-    notesInFlow: true,
-    executeOnce: true,
-    parameters: {
-      assignments: {
-        assignments: [
-          { id: uuidv4(), name: 'workflowName', value: expr('$workflow.name'), type: 'string' },
-          {
-            id: uuidv4(),
-            name: 'apiKey',
-            value: expr('$node["Get Not Bot"].json.property_api_key'),
-            type: 'string',
-          },
-          {
-            id: uuidv4(),
-            name: 'botURL',
-            value: `=https://{{$node['Get Not Bot'].json.property_server_url}}/message/sendText/{{$node['Get Not Bot'].json.property_bot_id}}`,
-            type: 'string',
-          },
-          { id: uuidv4(), name: 'messageType', value: 'MSG-S', type: 'string' },
-          { id: uuidv4(), name: 'sessionDate', value: '', type: 'string' },
-          {
-            id: uuidv4(),
-            name: 'number',
-            value: expr('$node["ENV"].json.client_whatsapp'),
-            type: 'string',
-          },
-          { id: uuidv4(), name: 'text', value: '🤖: Ha entrado un nuevo lead!', type: 'string' },
-          { id: uuidv4(), name: 'pageID', value: '', type: 'string' },
-        ],
-      },
-      options: {},
-    },
-  },
-  {
-    id: nodesData.MSG_S.id,
-    name: nodesData.MSG_S.name,
-    type: 'n8n-nodes-base.executeWorkflow',
-    typeVersion: 1.2,
-    position: nodesData.MSG_S.position,
-    notesInFlow: true,
-    parameters: {
-      workflowId: {
-        __rl: true,
-        value: 'NFfhN6ZIxkpBW3Ph',
-        mode: 'list',
-        cachedResultName: 'MSG General EvolutionApi',
-      },
-      workflowInputs: {
-        mappingMode: 'defineBelow',
-        value: {
-          workflowName: expr('$json.workflowName'),
-          messageType: expr('$json.messageType'),
-          number: expr('$json.number'),
-          pageID: expr('$json.pageID'),
-          sessionDate: expr('$json.sessionDate'),
-          botURL: expr('$json.botURL'),
-          apiKey: expr('$json.apiKey'),
-          text: expr('$json.text'),
-        },
-        matchingColumns: [],
-        schema: [],
-        attemptToConvertTypes: false,
-        convertFieldsToString: true,
-      },
-      options: { waitForSubWorkflow: false },
-    },
-  },
-  {
     id: nodesData.Get_Lead_Cancel.id,
     name: nodesData.Get_Lead_Cancel.name,
     type: 'n8n-nodes-base.notion',
@@ -1014,8 +912,8 @@ const nodes = [
           },
           {
             id: '6d6394f8-b07d-4fb6-9648-c13b6fa0dd3f',
-            name: 'messageType',
-            value: 'MSG-1',
+            name: setConfig.messageType.name,
+            value: setConfig.messageType.value.MSG_Reschedule,
             type: 'string',
           },
           {
@@ -1123,21 +1021,11 @@ const connections = {
   },
   'If Bot Create': {
     main: [
-      [{ node: nodesData.Data_MSG_1.name, type: 'main', index: 0 }],
-      [{ node: nodesData.Get_Not_Bot.name, type: 'main', index: 0 }],
+      [{ node: nodesData.Data_MSG_1.name, type: 'main', index: 0 }]
     ],
   },
   'Data MSG-1': {
     main: [[{ node: nodesData.MSG_1.name, type: 'main', index: 0 }]],
-  },
-  'MSG-1': {
-    main: [[{ node: nodesData.Get_Not_Bot.name, type: 'main', index: 0 }]],
-  },
-  'Get Not Bot': {
-    main: [[{ node: nodesData.Data_MSG_S.name, type: 'main', index: 0 }]],
-  },
-  'Data MSG-S': {
-    main: [[{ node: nodesData.MSG_S.name, type: 'main', index: 0 }]],
   },
   Reschedule: {
     main: [[{ node: nodesData.If_Bot_Reschedule.name, type: 'main', index: 0 }]],
