@@ -59,6 +59,7 @@ const {
       title = 'Evento sin nombre',
       startTime,
       endTime,
+      type = '',
       metadata = {},
       organizer: {
         id: organizerId,
@@ -80,7 +81,7 @@ const phoneValue = responses.phone?.value ?? '';
 const nameValue  = responses.name?.value  ?? '';
 const emailValue = responses.email?.value ?? '';
 
-const phone = phoneValue.replace(/[\s-]+/g, '');
+const phone = phoneValue.replace(/[s-]+/g, '');
 const rawName = nameValue.trim();
 
 const capitalizeWords = (s = '') =>
@@ -95,7 +96,7 @@ const questions_and_answers = Object.entries(responses)
   .filter(([k]) => /^q\d+$/i.test(k))
   .map(([, { label = '', value = '' }]) => ({
     question: label,
-    answer:   value,
+    answer: Array.isArray(value) ? value.join(', ') : String(value), // 👈 transformación segura
   }));
 
 // ──────────────────────────
@@ -121,6 +122,7 @@ return [
       event_id: uid,
       event:    triggerEvent,
       name_event: title,
+      slug: type,
       organizer: {
         id: organizerId,
         username,
