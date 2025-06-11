@@ -688,7 +688,7 @@ const nodes = [
           {
             id: uuidv4(),
             name: setConfig.messageType.name,
-            value: setConfig.messageType.value,
+            value: "MSG-1",
             type: 'string',
           },
           {
