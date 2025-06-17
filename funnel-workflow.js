@@ -280,13 +280,7 @@ const nodes = [
             name: 'db_id',
             value: expr("$node['Get Project'].json.property_crm_db.split('/')[3].split('?')[0]"),
             type: 'string',
-          },
-          {
-            id: uuidv4(),
-            name: 'client_whatsapp',
-            value: expr("$node['Get Project'].json.property_notificaciones"),
-            type: 'string',
-          },
+          }
         ],
       },
       options: {},
