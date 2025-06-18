@@ -951,9 +951,9 @@ const nodes = [
     parameters: {
       workflowId: {
         __rl: true,
-        value: 'NFfhN6ZIxkpBW3Ph',
+        value: 'IMr9xMNjeeTDZces',
         mode: 'list',
-        cachedResultName: 'MSG General EvolutionApi',
+        cachedResultName: 'MSGS',
       },
       workflowInputs: {
         mappingMode: 'defineBelow',
