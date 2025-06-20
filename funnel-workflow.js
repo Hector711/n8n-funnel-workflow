@@ -46,7 +46,7 @@ const credentials = {
 
 const jsCode = {
   Session_Data: `// ──────────────────────────
-// 1. Obtener y desestructurar datos del Webhook
+// 1. Obtener los datos del Webhook
 // ──────────────────────────
 const data = $('Webhook').first().json;
 
@@ -81,7 +81,7 @@ const phoneValue = responses.phone?.value ?? '';
 const nameValue  = responses.name?.value  ?? '';
 const emailValue = responses.email?.value ?? '';
 
-const phone = phoneValue.replace(/[s-]+/g, '');
+const phone   = phoneValue.replace(/[\s-]+/g, '');       // elimina espacios y guiones
 const rawName = nameValue.trim();
 
 const capitalizeWords = (s = '') =>
@@ -90,13 +90,13 @@ const capitalizeWords = (s = '') =>
    .join(' ');
 
 // ──────────────────────────
-// 3. Construir array de preguntas y respuestas (q1, q2…)
+// 3. Preguntas y respuestas (q1, q2…)
 // ──────────────────────────
 const questions_and_answers = Object.entries(responses)
   .filter(([k]) => /^q\d+$/i.test(k))
   .map(([, { label = '', value = '' }]) => ({
     question: label,
-    answer: Array.isArray(value) ? value.join(', ') : String(value), // 👈 transformación segura
+    answer: Array.isArray(value) ? value.join(', ') : String(value),
   }));
 
 // ──────────────────────────
@@ -107,14 +107,27 @@ function toISOWithOffset(dateStr, offset) {
   const d = new Date(dateStr);
   d.setMinutes(d.getMinutes() + offset);
   const sign = offset >= 0 ? '+' : '-';
-  const abs = Math.abs(offset);
-  const hh  = String(Math.floor(abs / 60)).padStart(2, '0');
-  const mm  = String(abs % 60).padStart(2, '0');
+  const abs  = Math.abs(offset);
+  const hh   = String(Math.floor(abs / 60)).padStart(2, '0');
+  const mm   = String(abs % 60).padStart(2, '0');
   return d.toISOString().slice(0, -1) + sign + hh + ':' + mm;
 }
 
 // ──────────────────────────
-// 5. Salida única combinada
+// 5. Formateo legible en ES (Europe/Madrid)
+// ──────────────────────────
+function getFormattedDate(isoDate) {
+  const fecha = new Date(isoDate);
+  const opts = { timeZone: 'Europe/Madrid', hour12: false };
+  const diaSemana = fecha.toLocaleString('es-ES', { ...opts, weekday: 'long' });
+  const diaMes    = fecha.toLocaleString('es-ES', { ...opts, day: 'numeric' });
+  const hora      = fecha.toLocaleString('es-ES', { ...opts, hour: '2-digit' });
+  const minutos   = fecha.toLocaleString('es-ES', { ...opts, minute: '2-digit' }).padStart(2, '0');
+  return "el " + diaSemana + " " + diaMes + " a las " + hora + ":" + minutos;
+}
+
+// ──────────────────────────
+// 6. Salida única combinada
 // ──────────────────────────
 return [
   {
@@ -137,12 +150,13 @@ return [
         telephone:  phone,
       },
       scheduled_event: {
-        created_at: toISOWithOffset(createdAt, utcOffset),
-        start_time: toISOWithOffset(startTime, utcOffset),
-        end_time:   toISOWithOffset(endTime,   utcOffset),
-        join_url:   metadata.videoCallUrl || '',
-        timezone:   timeZone,
-        cancel_url: 'https://app.cal.com/booking/' + uid + '?cancel=true',
+        created_at:  toISOWithOffset(createdAt, utcOffset),
+        start_time:  toISOWithOffset(startTime, utcOffset),
+        end_time:    toISOWithOffset(endTime,   utcOffset),
+        join_url:    metadata.videoCallUrl || '',
+        timezone:    timeZone,
+        cancel_url:  'https://app.cal.com/booking/' + uid + '?cancel=true',
+        formatted_date: getFormattedDate(startTime),
       },
       questions_and_answers,
     },
@@ -280,7 +294,7 @@ const nodes = [
             name: 'db_id',
             value: expr("$node['Get Project'].json.property_crm_db.split('/')[3].split('?')[0]"),
             type: 'string',
-          }
+          },
         ],
       },
       options: {},
@@ -682,7 +696,7 @@ const nodes = [
           {
             id: uuidv4(),
             name: setConfig.messageType.name,
-            value: "MSG-1",
+            value: 'MSG-1',
             type: 'string',
           },
           {
@@ -1016,9 +1030,7 @@ const connections = {
     main: [[{ node: nodesData.If_Bot_Create.name, type: 'main', index: 0 }]],
   },
   'If Bot Create': {
-    main: [
-      [{ node: nodesData.Data_MSG_1.name, type: 'main', index: 0 }]
-    ],
+    main: [[{ node: nodesData.Data_MSG_1.name, type: 'main', index: 0 }]],
   },
   'Data MSG-1': {
     main: [[{ node: nodesData.MSG_1.name, type: 'main', index: 0 }]],
